@@ -1,0 +1,12 @@
+*.pyc
+.idea/.name
+.idea/misc.xml
+.idea/workspace.xml
+.idea/encodings.xml
+.idea/modules.xml
+.idea/ensembleTopic.iml
+.idea/vcs.xml
+TMT/LDAFormatTest.csv
+TMT/LDAFormatTrain.csv
+TMT/LDAFormatTest-document-topic-distributuions.csv
+TMT/LDAFormatTrain-document-topic-distributuions.csv
