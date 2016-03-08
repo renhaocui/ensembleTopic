@@ -1,0 +1,7 @@
+BathAndBodyWorks	SVM	0.209492715845
+BathAndBodyWorks	RandomForest	0.621333137518
+BathAndBodyWorks	MaxEnt	0.634979318666
+BathAndBodyWorks	LLDA	0.45273286145
+BathAndBodyWorks	Alchemy	0.357233384174
+BathAndBodyWorks	AdaBoost	0.289071882002
+BathAndBodyWorks	NaiveBayes	0.461508698273

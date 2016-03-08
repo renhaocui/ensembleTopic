@@ -23,3 +23,13 @@ Elmers	0.818345969979
 Chilis	0.676894532459
 Dominos	0.538576149718
 Triclosan	0.27853854649
+['MaxEnt', 'NaiveBayes']
+BathAndBodyWorks	0.461508698273
+['LLDA', 'Alchemy']
+BathAndBodyWorks	0.357233384174
+['LLDA', 'MaxEnt']
+BathAndBodyWorks	0.45273286145
+['Alchemy', 'MaxEnt']
+BathAndBodyWorks	0.357233384174
+['LLDA', 'MaxEnt', 'NaiveBayes', 'Alchemy']
+BathAndBodyWorks	0.357233384174
