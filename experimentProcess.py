@@ -55,10 +55,6 @@ def main(brandList=['Elmers'], iniModelList=['MaxEnt'], ensModelList=['RandomFor
             trainLabelFile = open('../Experiment/Labels/Train/'+brand+'.'+str(fold), 'w')
             testLabelFile = open('../Experiment/Labels/Test/'+brand+'.'+str(fold), 'w')
 
-            # probDict[individualModel] = {lineNum: {topic: prob}}
-            probDict = {}
-            probDictTrain = {}
-
             feature_train = features[train_index]
             feature_test = features[test_index]
             doc_train = []
@@ -84,23 +80,25 @@ def main(brandList=['Elmers'], iniModelList=['MaxEnt'], ensModelList=['RandomFor
             testLabelFile.close()
 
             print 'running individual models...'
-            probFile = open('../Experiment/ProbData/'+brand+'/prob.'+str(fold), 'w')
-            probTrainFile = open('../Experiment/ProbData/'+brand+'/probTrain.'+str(fold), 'w')
+
             for model in iniModelList:
+                probFile = open('../Experiment/ProbData/'+brand+'/'+model+'prob.'+str(fold), 'w')
+                probTrainFile = open('../Experiment/ProbData/'+brand+'/'+model+'probTrain.'+str(fold), 'w')
+
                 if model == 'LLDA':
                     accuracy, output, trainOutput = LLDATopicModeling.LLDATrainInfer(doc_train, keyword_train, doc_test, keyword_test, candLabel, trainProbFlag)
                 elif model == 'Alchemy':
                     accuracy, output, trainOutput = alchemyMapping_TopicModeling.alchemyTrainInfer(alchemy_train, alchemy_test, keyword_train, keyword_test, trainProbFlag)
                 else:
                     accuracy, output, trainOutput = individualModels.trainInfer(feature_train, keyword_train, feature_test, keyword_test, model, trainProbFlag)
-                probDict[model] = transProb(output)
-                probDictTrain[model] = transProb(trainOutput)
                 accuracySumList[model] += accuracy
                 print model + ': ' + str(accuracy)
-            probFile.write(json.dumps(probDict))
-            probTrainFile.write(json.dumps(probDictTrain))
-            probFile.close()
-            probTrainFile.close()
+
+                # {lineNum: {topic: prob}}
+                probFile.write(json.dumps(transProb(output)))
+                probTrainFile.write(json.dumps(transProb(trainOutput)))
+                probFile.close()
+                probTrainFile.close()
 
             print 'running ensemble baselines...'
             for model in ensModelList:
