@@ -117,7 +117,7 @@ def main(brandList=['Elmers'], iniModelList=['MaxEnt'], ensModelList=['RandomFor
     resultFile.close()
 
 
-brandList = ['BathAndBodyWorks']
+brandList = ['Elmers', 'Chilis', 'BathAndBodyWorks', 'Dominos', 'Triclosan']
 iniModelList = ['NaiveBayes', 'SVM', 'MaxEnt', 'LLDA', 'Alchemy']
 ensModelList = ['RandomForest', 'AdaBoost']
 

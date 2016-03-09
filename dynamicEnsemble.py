@@ -441,4 +441,4 @@ runModelList = [['MaxEnt', 'NaiveBayes'], ['LLDA', 'Alchemy'], ['LLDA', 'MaxEnt'
 
 if __name__ == "__main__":
     for modelList in runModelList:
-        vectorEnsemble(brandList=brandList, modelList=modelList)
+        singleEnsemble(brandList=brandList, modelList=modelList)
