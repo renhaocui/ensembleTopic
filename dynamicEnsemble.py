@@ -97,7 +97,7 @@ def vectorWeightedPred(probData, modelList, weights, size):
 
 def iniPred(inputDict):
     predTopic = max(inputDict.iteritems(), key=operator.itemgetter(1))[0]
-    predScore = max(inputDict.iteritems(), key=operator.itemgetter(1))[1]
+    #predScore = max(inputDict.iteritems(), key=operator.itemgetter(1))[1]
     return predTopic
 
 
@@ -109,85 +109,6 @@ def singleEnsemble(brandList, modelList, iterations=30, learningRate=0.9):
         print brand
         accuracySum = 0.0
         for fold in range(5):
-            print fold
-            probTrainFile = open('../Experiment/ProbData/'+brand+'/probTrain.'+str(fold), 'r')
-            probTestFile = open('../Experiment/ProbData/'+brand+'/prob.'+str(fold), 'r')
-            trainLabelFile = open('../Experiment/Labels/Train/'+brand+'.'+str(fold), 'r')
-            testLabelFile = open('../Experiment/Labels/Test/'+brand+'.'+str(fold), 'r')
-
-            # probDict[individualModel] = {lineNum: {topic: prob}}
-            trainProbData = {}
-            testProbData = {}
-            for line in probTrainFile:
-                trainProbData = json.loads(line.strip())
-            probTrainFile.close()
-            for line in probTestFile:
-                testProbData = json.loads(line.strip())
-            probTestFile.close()
-
-            trainLabels = []
-            testLabels = []
-            for line in trainLabelFile:
-                trainLabels.append(line.strip())
-            for line in testLabelFile:
-                testLabels.append(line.strip())
-
-            flag, trainSize = checkSize(trainProbData, modelList)
-            if not flag:
-                print 'Training data size error across models!'
-                sys.exit()
-
-            weights, totalWeights, updateCounts = iniWeight(modelList)
-
-            # weight training
-            for iter in range(iterations):
-                predOutput = weightedPred(trainProbData, modelList, weights, trainSize)
-                for index in range(trainSize):
-                    outputLabel = predOutput[index][0]
-                    outputScore = predOutput[index][1]
-                    if outputLabel != trainLabels[index]:
-                        for model in modelList:
-                            if outputLabel != iniPred(trainProbData[model][str(index)]):
-                                weights[model] *= learningRate*outputScore
-
-                        weights = normalization(weights)
-                        for model in modelList:
-                            totalWeights[model] += weights[model]
-                            updateCounts[model] += 1.0
-
-            # test
-            flag, testSize = checkSize(testProbData, modelList)
-            if not flag:
-                print 'Test data size error across models!'
-                sys.exit()
-
-            inferWeights = {}
-            for model, total in totalWeights.items():
-                inferWeights[model] = total/updateCounts[model]
-
-            predOutput = weightedPred(testProbData, modelList, inferWeights, testSize)
-            total = 0.0
-            correct = 0.0
-            for index in range(testSize):
-                if predOutput[index][0] == testLabels[index]:
-                    correct += 1.0
-                total += 1.0
-            accuracySum += correct/total
-
-        print accuracySum/5
-        resultFile.write(brand+'\t'+str(accuracySum/5)+'\n')
-    resultFile.close()
-
-
-def singleEnsemble2(brandList, modelList, iterations=30, learningRate=0.9):
-    print str(modelList)
-    resultFile = open('HybridData/Experiment/single.result', 'a')
-    resultFile.write(str(modelList)+'\n')
-    for brand in brandList:
-        print brand
-        accuracySum = 0.0
-        for fold in range(5):
-            print fold
             trainLabelFile = open('../Experiment/Labels/Train/'+brand+'.'+str(fold), 'r')
             testLabelFile = open('../Experiment/Labels/Test/'+brand+'.'+str(fold), 'r')
 
@@ -228,7 +149,7 @@ def singleEnsemble2(brandList, modelList, iterations=30, learningRate=0.9):
                     outputScore = predOutput[index][1]
                     if outputLabel != trainLabels[index]:
                         for model in modelList:
-                            if outputLabel != iniPred(trainProbData[model][str(index)]):
+                            if trainLabels[index] != iniPred(trainProbData[model][str(index)]):
                                 weights[model] *= learningRate*outputScore
 
                         weights = normalization(weights)
@@ -258,6 +179,7 @@ def singleEnsemble2(brandList, modelList, iterations=30, learningRate=0.9):
         print accuracySum/5
         resultFile.write(brand+'\t'+str(accuracySum/5)+'\n')
     resultFile.close()
+
 
 def vectorEnsemble(brandList, modelList, iterations=100, learningRate=0.9):
     resultFile = open('HybridData/Experiment/vector.result', 'a')
@@ -267,92 +189,6 @@ def vectorEnsemble(brandList, modelList, iterations=100, learningRate=0.9):
         accuracySum = 0.0
         for fold in range(5):
             print fold
-            probTrainFile = open('../Experiment/ProbData/'+brand+'/probTrain.'+str(fold), 'r')
-            probTestFile = open('../Experiment/ProbData/'+brand+'/prob.'+str(fold), 'r')
-            trainLabelFile = open('../Experiment/Labels/Train/'+brand+'.'+str(fold), 'r')
-            testLabelFile = open('../Experiment/Labels/Test/'+brand+'.'+str(fold), 'r')
-
-            # probDict[individualModel] = {lineNum: {topic: prob}}
-            trainProbData = {}
-            testProbData = {}
-            for line in probTrainFile:
-                trainProbData = json.loads(line.strip())
-            probTrainFile.close()
-            for line in probTestFile:
-                testProbData = json.loads(line.strip())
-            probTestFile.close()
-
-            trainLabels = []
-            testLabels = []
-            labelCorpus = {}
-            for line in trainLabelFile:
-                trainLabels.append(line.strip())
-                if line.strip() not in labelCorpus:
-                    labelCorpus[line.strip()] = 1.0
-                else:
-                    labelCorpus[line.strip()] += 1.0
-            for line in testLabelFile:
-                testLabels.append(line.strip())
-
-            flag, trainSize = checkSize(trainProbData, modelList)
-            if not flag:
-                print 'Training data size error across models!'
-                sys.exit()
-
-            weights, totalWeights, updateCounts = iniVectorWeight(modelList, labelCorpus)
-
-            # weight training
-            for iter in range(iterations):
-                predOutput = vectorWeightedPred(trainProbData, modelList, weights, trainSize)
-                for index in range(trainSize):
-                    outputLabel = predOutput[index][0]
-                    outputScore = predOutput[index][1]
-                    if outputLabel != trainLabels[index]:
-                        for model in modelList:
-                            if outputLabel != iniPred(trainProbData[model][str(index)]):
-                                for label in labelCorpus:
-                                    if label != iniPred(trainProbData[model][str(index)]):
-                                        weights[model][label] *= learningRate*outputScore
-
-                        weights = vectorNormalization(weights, labelCorpus)
-                        for model in modelList:
-                            for label in labelCorpus:
-                                totalWeights[model][label] += weights[model][label]
-                                updateCounts[model][label] += 1.0
-
-            # test
-            flag, testSize = checkSize(testProbData, modelList)
-            if not flag:
-                print 'Test data size error across models!'
-                sys.exit()
-
-            inferWeights = {}
-            for model, total in totalWeights.items():
-                inferWeights[model] = {}
-                for label in labelCorpus:
-                    inferWeights[model][label] = total[label]/updateCounts[model][label]
-
-            predOutput = vectorWeightedPred(testProbData, modelList, inferWeights, testSize)
-            total = 0.0
-            correct = 0.0
-            for index in range(testSize):
-                if predOutput[index][0] == testLabels[index]:
-                    correct += 1.0
-                total += 1.0
-            accuracySum += correct/total
-
-        print accuracySum/5
-        resultFile.write(brand+'\t'+str(accuracySum/5)+'\n')
-    resultFile.close()
-
-def vectorEnsemble2(brandList, modelList, iterations=100, learningRate=0.9):
-    resultFile = open('HybridData/Experiment/vector.result', 'a')
-    resultFile.write(str(modelList)+'\n')
-    for brand in brandList:
-        print brand
-        accuracySum = 0.0
-        for fold in range(5):
-            print fold
             trainLabelFile = open('../Experiment/Labels/Train/'+brand+'.'+str(fold), 'r')
             testLabelFile = open('../Experiment/Labels/Test/'+brand+'.'+str(fold), 'r')
 
@@ -398,9 +234,9 @@ def vectorEnsemble2(brandList, modelList, iterations=100, learningRate=0.9):
                     outputScore = predOutput[index][1]
                     if outputLabel != trainLabels[index]:
                         for model in modelList:
-                            if outputLabel != iniPred(trainProbData[model][str(index)]):
+                            if trainLabels[index] != iniPred(trainProbData[model][str(index)]):
                                 for label in labelCorpus:
-                                    if label != iniPred(trainProbData[model][str(index)]):
+                                    if label != trainLabels[index]:
                                         weights[model][label] *= learningRate*outputScore
 
                         weights = vectorNormalization(weights, labelCorpus)
@@ -434,11 +270,10 @@ def vectorEnsemble2(brandList, modelList, iterations=100, learningRate=0.9):
         resultFile.write(brand+'\t'+str(accuracySum/5)+'\n')
     resultFile.close()
 
-#brandList = ['BathAndBodyWorks']
-brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan']
+brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'BathAndBodyWorks']
 #modelList = ['MaxEnt', 'NaiveBayes']
 runModelList = [['MaxEnt', 'NaiveBayes'], ['LLDA', 'Alchemy'], ['LLDA', 'MaxEnt'], ['Alchemy', 'MaxEnt'], ['LLDA', 'MaxEnt', 'NaiveBayes', 'Alchemy']]
 
 if __name__ == "__main__":
     for modelList in runModelList:
-        singleEnsemble(brandList=brandList, modelList=modelList)
+        vectorEnsemble(brandList=brandList, modelList=modelList)
