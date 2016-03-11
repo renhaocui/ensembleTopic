@@ -26,3 +26,10 @@ Triclosan	LLDA	0.422749204823
 Triclosan	Alchemy	0.280514673179
 Triclosan	AdaBoost	0.194305707972
 Triclosan	NaiveBayes	0.431950729798
+BathAndBodyWorks	SVM	0.210756014358
+BathAndBodyWorks	RandomForest	0.625398995299
+BathAndBodyWorks	MaxEnt	0.641572142935
+BathAndBodyWorks	LLDA	0.452089428973
+BathAndBodyWorks	Alchemy	0.359668159164
+BathAndBodyWorks	AdaBoost	0.282501502592
+BathAndBodyWorks	NaiveBayes	0.464150148056
