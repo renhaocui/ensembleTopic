@@ -1,6 +1,10 @@
 import json
 import sys
 import operator
+from scipy.sparse import hstack, csr_matrix
+import numpy
+from sklearn.feature_extraction.text import TfidfVectorizer
+import random
 
 def iniWeight(modelList):
     output = {}
@@ -30,7 +34,6 @@ def iniVectorWeight(modelList, labelCorpus):
         totalWeights[model] = tempTotalWeight
         updateCount[model] = tempCount
     return weights, totalWeights, updateCount
-
 
 def normalization(weightDict):
     output = {}
@@ -101,6 +104,70 @@ def iniPred(inputDict):
     return predTopic
 
 
+def modelDiff(trainData, modelList, trueLabels, trainSize, outputFileName):
+    outputFile = open(outputFileName, 'w')
+    output = {}
+    for index in range(trainSize):
+        modelOutput = {}
+        temp = iniPred(trainData[modelList[0]][str(index)])
+        flag = False
+        for model in modelList:
+            modelOutput[model] = iniPred(trainData[model][str(index)])
+            if modelOutput[model] != temp:
+                flag = True
+            temp = modelOutput[model]
+        if flag:
+            out = trueLabels[index]
+            for model in modelList:
+                out += '\t' + modelOutput[model]
+            outputFile.write(out.strip()+'\n')
+    outputFile.close()
+
+
+def idealOutput(testProbData, modelList, testSize):
+    output = {}
+    for index in range(testSize):
+        temp = []
+        for model in modelList:
+            temp.append(iniPred(testProbData[model][str(index)]))
+        output[index] = temp
+    return output
+
+
+def appendDocFeature(docFileName, trainProbData, modelList, labelCorpus, trainSize):
+    docContent = []
+    docFile = open(docFileName, 'r')
+    for line in docFile:
+        docContent.append(line.strip())
+    docFile.close()
+
+    vectorizer = TfidfVectorizer(analyzer='word', ngram_range=(1, 1), min_df=2, stop_words='english')
+    docFeatures = vectorizer.fit_transform(docContent)
+    probFeatures = []
+    for index in range(trainSize):
+        temp = []
+        for model in modelList:
+            for label in labelCorpus:
+                temp.append(trainProbData[model][str(index)][label])
+        probFeatures.append(numpy.array(temp))
+    features = hstack((docFeatures, csr_matrix(numpy.array(probFeatures))), format='csr')
+    return features
+
+def labeler(trainProbData, trueTrainLabels, modelList, trainSize):
+    labelList = []
+    for index in range(trainSize):
+        outputList = []
+        for num, model in enumerate(modelList):
+            if iniPred(trainProbData[model][str(index)]) == trueTrainLabels[index]:
+                outputList.append(num)
+        if len(outputList) == 0:
+            labelList.append(-1)
+        else:
+            labelList.append(random.choice(outputList))
+
+    return labelList
+
+
 def singleEnsemble(brandList, modelList, iterations=30, learningRate=0.9):
     print str(modelList)
     resultFile = open('HybridData/Experiment/single.result', 'a')
@@ -140,6 +207,8 @@ def singleEnsemble(brandList, modelList, iterations=30, learningRate=0.9):
                 sys.exit()
 
             weights, totalWeights, updateCounts = iniWeight(modelList)
+            #modelDiff(trainProbData, modelList, trainLabels, trainSize, '../Experiment/'+brand+'.output')
+
 
             # weight training
             for iter in range(iterations):
@@ -168,16 +237,23 @@ def singleEnsemble(brandList, modelList, iterations=30, learningRate=0.9):
                 inferWeights[model] = total/updateCounts[model]
 
             predOutput = weightedPred(testProbData, modelList, inferWeights, testSize)
+            #predOutput = idealOutput(testProbData, modelList, testSize)
+
             total = 0.0
             correct = 0.0
-            for index in range(testSize):
+            for index in range(trainSize):
                 if predOutput[index][0] == testLabels[index]:
                     correct += 1.0
+                '''
+                if testLabels[index] in predOutput[index]:
+                    correct += 1.0
+                '''
                 total += 1.0
             accuracySum += correct/total
 
         print accuracySum/5
         resultFile.write(brand+'\t'+str(accuracySum/5)+'\n')
+
     resultFile.close()
 
 
@@ -271,9 +347,9 @@ def vectorEnsemble(brandList, modelList, iterations=100, learningRate=0.9):
     resultFile.close()
 
 brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'BathAndBodyWorks']
-#modelList = ['MaxEnt', 'NaiveBayes']
+#runModelList = [['MaxEnt', 'NaiveBayes']]
 runModelList = [['MaxEnt', 'NaiveBayes'], ['LLDA', 'Alchemy'], ['LLDA', 'MaxEnt'], ['Alchemy', 'MaxEnt'], ['LLDA', 'MaxEnt', 'NaiveBayes', 'Alchemy']]
 
 if __name__ == "__main__":
     for modelList in runModelList:
-        vectorEnsemble(brandList=brandList, modelList=modelList)
+        singleEnsemble(brandList=brandList, modelList=modelList)

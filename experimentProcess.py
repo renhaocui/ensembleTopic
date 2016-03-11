@@ -54,6 +54,8 @@ def main(brandList=['Elmers'], iniModelList=['MaxEnt'], ensModelList=['RandomFor
 
             trainLabelFile = open('../Experiment/Labels/Train/'+brand+'.'+str(fold), 'w')
             testLabelFile = open('../Experiment/Labels/Test/'+brand+'.'+str(fold), 'w')
+            testDocFile = open('../Experiment/DocData/Test/'+brand+'.'+str(fold), 'w')
+            trainDocFile = open('../Experiment/DocData/Train/'+brand+'.'+str(fold), 'w')
 
             feature_train = features[train_index]
             feature_test = features[test_index]
@@ -65,10 +67,12 @@ def main(brandList=['Elmers'], iniModelList=['MaxEnt'], ensModelList=['RandomFor
             alchemy_test = []
             for index in train_index:
                 doc_train.append(docContent[index])
+                trainDocFile.write(docContent[index]+'\n')
                 keyword_train.append(keywordLabels[index])
                 alchemy_train.append(alchemyLabels[index])
             for index in test_index:
                 doc_test.append(docContent[index])
+                testDocFile.write(docContent[index]+'\n')
                 keyword_test.append(keywordLabels[index])
                 alchemy_test.append(alchemyLabels[index])
 
@@ -78,6 +82,8 @@ def main(brandList=['Elmers'], iniModelList=['MaxEnt'], ensModelList=['RandomFor
                 testLabelFile.write(label+'\n')
             trainLabelFile.close()
             testLabelFile.close()
+            trainDocFile.close()
+            testDocFile.close()
 
             print 'running individual models...'
 
@@ -117,7 +123,7 @@ def main(brandList=['Elmers'], iniModelList=['MaxEnt'], ensModelList=['RandomFor
     resultFile.close()
 
 
-brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan']
+brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'BathAndBodyWorks']
 iniModelList = ['NaiveBayes', 'SVM', 'MaxEnt', 'LLDA', 'Alchemy']
 ensModelList = ['RandomForest', 'AdaBoost']
 
