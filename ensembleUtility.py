@@ -1,4 +1,5 @@
 import json
+import operator
 
 def iniPred(inputDict):
     predTopic = max(inputDict.iteritems(), key=operator.itemgetter(1))[0]

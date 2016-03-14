@@ -1,59 +1,43 @@
 from scipy.sparse import hstack, csr_matrix
 import numpy
 from sklearn.feature_extraction.text import TfidfVectorizer
-import random
 import modelUtility
 import ensembleUtility as eu
 import sys
 from sklearn.linear_model import LogisticRegression
+from sklearn import svm
 
-def trainDocAppend(trainVectorData, probData, labelCorpus, modelList, trainSize):
+def docAppend(vectorData, probData, labelCorpus, modelList, trainSize):
     probFeatures = []
     for index in range(trainSize):
         temp = []
         for model in modelList:
             for label in labelCorpus:
-                temp.append(probData[model][str(index)][label])
+                if label in probData[model][str(index)]:
+                    temp.append(probData[model][str(index)][label])
+                else:
+                    temp.append(0.0)
         probFeatures.append(numpy.array(temp))
 
-    features = hstack((trainVectorData, csr_matrix(numpy.array(probFeatures))), format='csr')
+    features = hstack((vectorData, csr_matrix(numpy.array(probFeatures))), format='csr')
+
     return features
 
-
-def testDocAppend(testVectorData, probData, modelList, labelCorpus, testSize):
+def testLabeler(features, testProbData, trueTestLabels, modelList, testSize):
     validIndex = []
-    probFeatures = []
+    labelList = []
     for index in range(testSize):
-        temp = eu.iniPred(probData[modelList[0]][str(index)])
-        flag = False
-        tempFeature = []
-        for model in modelList:
-            if eu.iniPred(probData[model][str(index)]) != temp:
-                flag = True
-                break
-            temp = eu.iniPred(probData[model][str(index)])
-            for label in labelCorpus:
-                tempFeature.append(probData[model][str(index)][label])
-        if flag:
+        outputList = []
+        for num, model in enumerate(modelList):
+            if eu.iniPred(testProbData[model][str(index)]) == trueTestLabels[index]:
+                outputList.append(num)
+        if len(outputList) > 0:
             validIndex.append(index)
-            probFeatures.append(numpy.array(tempFeature))
+            labelList.append(outputList)
 
-    features = hstack((testVectorData[validIndex], csr_matrix(numpy.array(probFeatures))), format='csr')
-    return features, validIndex
+    return features[validIndex], labelList
 
-
-def dataAssigner(features, trainIndex, testIndex, fold):
-    trainFeature = []
-    testFeature = []
-    for index in trainIndex[fold]:
-        trainFeature.append(features[index])
-    for index in testIndex[fold]:
-        testFeature.append(features[index])
-
-    return trainFeature, testFeature
-
-
-def labeler(trainProbData, trueTrainLabels, modelList, trainSize):
+def trainLabeler(trainProbData, trueTrainLabels, modelList, trainSize):
     labelList = []
     validIndex = []
     for index in range(trainSize):
@@ -62,22 +46,34 @@ def labeler(trainProbData, trueTrainLabels, modelList, trainSize):
             if eu.iniPred(trainProbData[model][str(index)]) == trueTrainLabels[index]:
                 outputList.append(num)
         if len(outputList) > 0:
-            validIndex.append(index)
-            labelList.append(random.choice(outputList))
+            for item in outputList:
+                validIndex.append(index)
+                labelList.append(item)
+            #labelList.append(random.choice(outputList))
 
     return labelList, validIndex
 
+def evaluator(predictions, labels):
+    correct = 0.0
+    total = 0.0
+    for index, pred in enumerate(predictions):
+        if pred in labels[index]:
+            correct += 1.0
+        total += 1.0
+    return correct/total
+
 def singleWeight(brandList, modelList):
     print str(modelList)
-    resultFile = open('HybridData/Experiment/single.result', 'a')
+    resultFile = open('HybridData/Experiment/docFeature.result', 'a')
     resultFile.write(str(modelList) + '\n')
     for brand in brandList:
         print brand
-        accuracySum = 0.0
+        accuracySum1 = 0.0
+        accuracySum2 = 0.0
         trainIndex = {}
         testIndex = {}
         trainIndexFile = open('HybridData/Experiment/TrainIndex/'+brand+'.train', 'r')
-        testIndexFile = open('HybridData/Experiment/TrainIndex/'+brand+'.test', 'r')
+        testIndexFile = open('HybridData/Experiment/TestIndex/'+brand+'.test', 'r')
         for fold, line in enumerate(trainIndexFile):
             trainIndex[fold] = line.strip().split(',')
         for fold, line in enumerate(testIndexFile):
@@ -85,6 +81,7 @@ def singleWeight(brandList, modelList):
         trainIndexFile.close()
         testIndexFile.close()
         for fold in range(5):
+            #print 'Fold: '+str(fold)
             trainProbData, testProbData, trainLabels, testLabels, labelCorpus = eu.consolidateReader(brand, fold, modelList)
 
             flag, trainSize = eu.checkSize(trainProbData, modelList)
@@ -92,33 +89,43 @@ def singleWeight(brandList, modelList):
                 print 'Training data size error across models!'
                 sys.exit()
 
+            # read in
             docContent, labels, candTopic = modelUtility.readData('HybridData/Original/' + brand + '.content', 'HybridData/Original/' + brand + '.keyword')
             vectorizer = TfidfVectorizer(analyzer='word', ngram_range=(1, 1), min_df=2, stop_words='english')
             docVectors = vectorizer.fit_transform(docContent)
+            trainDocVector =docVectors[trainIndex[fold]]
+            testDocVector = docVectors[testIndex[fold]]
 
-            trainDocVector, testDocVector = dataAssigner(docVectors, labels, trainIndex, testIndex, fold)
-
-            features = trainDocAppend(trainDocVector, trainProbData, labelCorpus, modelList, trainSize)
-            trainLabels, validList = labeler(trainProbData, trainLabels, modelList, trainSize)
+            # training
+            features = docAppend(trainDocVector, trainProbData, labelCorpus, modelList, trainSize)
+            trainLabels, validList = trainLabeler(trainProbData, trainLabels, modelList, trainSize)
             trainFeature = features[validList]
 
-            model = LogisticRegression()
-            model.fit(trainFeature, trainLabels)
+            model1 = LogisticRegression()
+            model2 = svm.SVC()
+            model1.fit(trainFeature, trainLabels)
+            model2.fit(trainFeature, trainLabels)
 
-            # test
+            # testing
             flag, testSize = eu.checkSize(testProbData, modelList)
             if not flag:
                 print 'Test data size error across models!'
                 sys.exit()
-            testFeature, validList = testDocAppend(testDocVector, testProbData, modelList, labelCorpus, testSize)
 
-            labels = []
-            for index in validList:
-                labels.append(testLabels[index])
-            accuracySum += model.score(testFeature, labels)
+            features = docAppend(testDocVector, testProbData, labelCorpus, modelList, testSize)
+            testFeatures, labels = testLabeler(features, testProbData, testLabels, modelList, testSize)
 
-        print accuracySum / 5
-        resultFile.write(brand + '\t' + str(accuracySum / 5) + '\n')
+            predictions1 = model1.predict(testFeatures)
+            predictions2 = model2.predict(testFeatures)
+
+            accuracySum1 += evaluator(predictions1, labels)
+            accuracySum2 += evaluator(predictions2, labels)
+
+        print 'MaxEnt\t '+str(accuracySum1 / 5.0)
+        print 'SMV\t'+str(accuracySum2 / 5.0)
+
+        resultFile.write(brand + '\t' + str(accuracySum1 / 5.0) + '\n')
+        resultFile.write(brand + '\t' + str(accuracySum2 / 5.0) + '\n')
 
     resultFile.close()
 
