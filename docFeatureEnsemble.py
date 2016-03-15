@@ -62,6 +62,15 @@ def evaluator(predictions, labels):
         total += 1.0
     return correct/total
 
+def evaluator2(predictions, modelList, testProbData, testLabels):
+    correct = 0.0
+    total = 0.0
+    for index, pred in enumerate(predictions):
+        if eu.iniPred(testProbData[modelList[pred]][str(index)]) == testLabels[index]:
+            correct += 1.0
+        total += 1.0
+    return correct/total
+
 def singleWeight(brandList, modelList):
     print str(modelList)
     resultFile = open('HybridData/Experiment/docFeature.result', 'a')
@@ -113,13 +122,16 @@ def singleWeight(brandList, modelList):
                 sys.exit()
 
             features = docAppend(testDocVector, testProbData, labelCorpus, modelList, testSize)
-            testFeatures, labels = testLabeler(features, testProbData, testLabels, modelList, testSize)
+            #testFeatures, labels = testLabeler(features, testProbData, testLabels, modelList, testSize)
+            testFeatures = features
 
             predictions1 = model1.predict(testFeatures)
             predictions2 = model2.predict(testFeatures)
 
-            accuracySum1 += evaluator(predictions1, labels)
-            accuracySum2 += evaluator(predictions2, labels)
+            #accuracySum1 += evaluator(predictions1, labels)
+            accuracySum1 += evaluator2(predictions1, modelList, testProbData, testLabels)
+            accuracySum2 += evaluator2(predictions2, modelList, testProbData, testLabels)
+            #accuracySum2 += evaluator(predictions2, labels)
 
         print 'MaxEnt\t '+str(accuracySum1 / 5.0)
         print 'SMV\t'+str(accuracySum2 / 5.0)
@@ -132,8 +144,8 @@ def singleWeight(brandList, modelList):
 
 brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'BathAndBodyWorks']
 # runModelList = [['MaxEnt', 'NaiveBayes']]
-runModelList = [['MaxEnt', 'NaiveBayes'], ['LLDA', 'Alchemy'], ['LLDA', 'MaxEnt'], ['Alchemy', 'MaxEnt'],
-                ['LLDA', 'MaxEnt', 'NaiveBayes', 'Alchemy']]
+#runModelList = [['MaxEnt', 'NaiveBayes'], ['LLDA', 'Alchemy']]
+runModelList = [['MaxEnt', 'NaiveBayes'], ['LLDA', 'Alchemy'], ['LLDA', 'MaxEnt'], ['Alchemy', 'MaxEnt'], ['LLDA', 'MaxEnt', 'NaiveBayes', 'Alchemy']]
 
 if __name__ == "__main__":
     for modelList in runModelList:

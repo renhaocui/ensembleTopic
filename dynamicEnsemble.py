@@ -92,7 +92,6 @@ def vectorWeightedPred(probData, modelList, weights, size):
 
 def modelDiff(trainData, modelList, trueLabels, trainSize, outputFileName):
     outputFile = open(outputFileName, 'w')
-    output = {}
     for index in range(trainSize):
         modelOutput = {}
         temp = eu.iniPred(trainData[modelList[0]][str(index)])
