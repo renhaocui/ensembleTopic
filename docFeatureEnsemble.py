@@ -75,7 +75,7 @@ def evaluator2(predictions, modelList, testProbData, testLabels):
 
 def singleWeight(brandList, modelList, useDocVector):
     print str(modelList)
-    resultFile = open('HybridData/Experiment/probFeature.result', 'a')
+    resultFile = open('HybridData/Experiment/labelPred.result', 'a')
     resultFile.write(str(modelList) + '\n')
     for brand in brandList:
         print brand
@@ -104,25 +104,28 @@ def singleWeight(brandList, modelList, useDocVector):
 
             # read in
             docContent, labels, candTopic = modelUtility.readData('HybridData/Original/' + brand + '.content', 'HybridData/Original/' + brand + '.keyword')
-            if useDocVector:
-                vectorizer = TfidfVectorizer(analyzer='word', ngram_range=(1, 1), min_df=2, stop_words='english')
-                docVectors = vectorizer.fit_transform(docContent)
 
-                trainDocVector =docVectors[trainIndex[fold]]
-                testDocVector = docVectors[testIndex[fold]]
-            else:
-                trainDocVector =[]
-                testDocVector = []
+            vectorizer = TfidfVectorizer(analyzer='word', ngram_range=(1, 1), min_df=2, stop_words='english')
+            docVectors = vectorizer.fit_transform(docContent)
+
+            trainDocVector =docVectors[trainIndex[fold]]
+            testDocVector = docVectors[testIndex[fold]]
 
             # training
-            features = docAppend(trainDocVector, trainProbData, labelCorpus, modelList, trainSize, useDocVector)
-            trainLabels, validList = trainLabeler(trainProbData, trainLabels, modelList, trainSize)
-            trainFeature = features[validList]
+            features1 = docAppend(trainDocVector, trainProbData, labelCorpus, modelList, trainSize, True)
+            features2 = docAppend(trainDocVector, trainProbData, labelCorpus, modelList, trainSize, False)
+            #trainLabels, validList = trainLabeler(trainProbData, trainLabels, modelList, trainSize)
+            #trainFeature = features[validList]
 
             model1 = LogisticRegression()
-            model2 = svm.SVC()
-            model1.fit(trainFeature, trainLabels)
-            model2.fit(trainFeature, trainLabels)
+            model2 = LogisticRegression()
+            model3 = svm.SVC()
+            model4 = svm.SVC()
+
+            model1.fit(features1, trainLabels)
+            model2.fit(features2, trainLabels)
+            model3.fit(features1, trainLabels)
+            model4.fit(features2, trainLabels)
 
             # testing
             flag, testSize = eu.checkSize(testProbData, modelList)
@@ -130,24 +133,28 @@ def singleWeight(brandList, modelList, useDocVector):
                 print 'Test data size error across models!'
                 sys.exit()
 
-            features = docAppend(testDocVector, testProbData, labelCorpus, modelList, testSize, useDocVector)
-            testFeatures1, labels1 = testLabeler(features, testProbData, testLabels, modelList, testSize)
-            testFeatures2 = features
+            testFeatures1 = docAppend(testDocVector, testProbData, labelCorpus, modelList, testSize, True)
+            testFeatures2 = docAppend(testDocVector, testProbData, labelCorpus, modelList, testSize, False)
+            #testFeatures1, labels1 = testLabeler(features, testProbData, testLabels, modelList, testSize)
+
 
             predictions1 = model1.predict(testFeatures1)
-            predictions2 = model2.predict(testFeatures1)
-            predictions3 = model1.predict(testFeatures2)
-            predictions4 = model2.predict(testFeatures2)
+            predictions2 = model2.predict(testFeatures2)
+            predictions3 = model3.predict(testFeatures1)
+            predictions4 = model4.predict(testFeatures2)
 
-            accuracySum1 += evaluator(predictions1, labels1)
-            accuracySum2 += evaluator(predictions2, labels1)
-            accuracySum3 += evaluator2(predictions3, modelList, testProbData, testLabels)
-            accuracySum4 += evaluator2(predictions4, modelList, testProbData, testLabels)
+            accuracySum1 += evaluator(predictions1, testLabels)
+            accuracySum2 += evaluator(predictions2, testLabels)
+            accuracySum3 += evaluator(predictions3, testLabels)
+            accuracySum4 += evaluator(predictions4, testLabels)
 
-        print 'MaxEnt model selection\t '+str(accuracySum1 / 5.0)
-        print 'SMV model selection\t'+str(accuracySum2 / 5.0)
-        print 'MaxEnt label prediction\t'+str(accuracySum3 / 5.0)
-        print 'SMV label prediction\t'+str(accuracySum4 / 5.0)
+            #accuracySum3 += evaluator2(predictions3, modelList, testProbData, testLabels)
+            #accuracySum4 += evaluator2(predictions4, modelList, testProbData, testLabels)
+
+        print 'MaxEnt All\t '+str(accuracySum1 / 5.0)
+        print 'MaxEnt Prob\t'+str(accuracySum2 / 5.0)
+        print 'SVM All\t'+str(accuracySum3 / 5.0)
+        print 'SMV Prob\t'+str(accuracySum4 / 5.0)
 
         resultFile.write(brand + '\t' + str(accuracySum1 / 5.0) + '\n')
         resultFile.write(brand + '\t' + str(accuracySum2 / 5.0) + '\n')
