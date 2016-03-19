@@ -144,7 +144,6 @@ def singleWeightTest(testProbData, totalWeights, updateCounts, testLabels, testS
         inferWeights[model] = total / updateCounts[model]
 
     predOutput = weightedPred(testProbData, modelList, inferWeights, testSize)
-    # predOutput = idealOutput(testProbData, modelList, testSize)
 
     total = 0.0
     correct = 0.0
@@ -155,15 +154,28 @@ def singleWeightTest(testProbData, totalWeights, updateCounts, testLabels, testS
 
     return correct/total
 
+def idealTest(testProbData, modelList, testLabels, testSize):
+    predOutput = idealOutput(testProbData, modelList, testSize)
+
+    total = 0.0
+    correct = 0.0
+    for index in range(testSize):
+        if testLabels[index] in predOutput[index]:
+        #if predOutput[index][0] == testLabels[index]:
+            correct += 1.0
+        total += 1.0
+
+    return correct/total
+
+
 def singleWeight(brandList, modelList, iterations=30, learningRate=0.9):
     print str(modelList)
-    resultFile = open('HybridData/Experiment/single.result', 'a')
+    resultFile = open('HybridData/Experiment/ideal.result', 'a')
     resultFile.write(str(modelList) + '\n')
     for brand in brandList:
         print brand
         accuracySum = 0.0
         for fold in range(5):
-            print fold
             trainProbData, testProbData, trainLabels, testLabels, labelCorpus = eu.consolidateReader(brand, fold, modelList)
 
             flag, trainSize = eu.checkSize(trainProbData, modelList)
@@ -173,18 +185,19 @@ def singleWeight(brandList, modelList, iterations=30, learningRate=0.9):
 
             weights, totalWeights, updateCounts = iniWeight(modelList)
             # modelDiff(trainProbData, modelList, trainLabels, trainSize, '../Experiment/'+brand+'.output')
-
+            '''
             # weight training
             weights, totalWeights, updateCounts = singleWeightTraining(weights, totalWeights, updateCounts,
                                                                        trainProbData, trainLabels, modelList,
                                                                        iterations, learningRate, trainSize)
-
+            '''
             # test
             flag, testSize = eu.checkSize(testProbData, modelList)
             if not flag:
                 print 'Test data size error across models!'
                 sys.exit()
-            accuracy = singleWeightTest(testProbData, totalWeights, updateCounts, testLabels, testSize)
+            #accuracy = singleWeightTest(testProbData, totalWeights, updateCounts, testLabels, testSize)
+            accuracy = idealTest(testProbData, modelList, testLabels, testSize)
             accuracySum += accuracy
 
         print accuracySum / 5
@@ -194,15 +207,13 @@ def singleWeight(brandList, modelList, iterations=30, learningRate=0.9):
 
 
 def vectorEnsemble(brandList, modelList, iterations=100, learningRate=0.9):
-    resultFile = open('HybridData/Experiment/vector.result', 'a')
+    resultFile = open('HybridData/Experiment/ideal.result', 'a')
     resultFile.write(str(modelList) + '\n')
     for brand in brandList:
         print brand
         accuracySum = 0.0
         for fold in range(5):
-            print fold
             trainProbData, testProbData, trainLabels, testLabels, labelCorpus = eu.consolidateReader(brand, fold, modelList)
-
             flag, trainSize = eu.checkSize(trainProbData, modelList)
             if not flag:
                 print 'Training data size error across models!'

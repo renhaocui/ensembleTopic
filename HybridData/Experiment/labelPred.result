@@ -100,3 +100,5 @@ Triclosan	0.464185574984
 Triclosan	0.462754221493
 Triclosan	0.141484632384
 Triclosan	0.453417827062
+['LLDA', 'MaxEnt', 'NaiveBayes', 'Alchemy']
+['LLDA', 'MaxEnt', 'NaiveBayes', 'Alchemy']

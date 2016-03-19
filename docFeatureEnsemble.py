@@ -4,8 +4,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import modelUtility
 import ensembleUtility as eu
 import sys
-from sklearn.linear_model import LogisticRegression
-from sklearn import svm
+#from sklearn.linear_model import LogisticRegression
+#from sklearn import svm
+from sklearn.neural_network import MLPClassifier
 
 def docAppend(vectorData, probData, labelCorpus, modelList, trainSize, useDocVector):
     probFeatures = []
@@ -73,16 +74,15 @@ def evaluator2(predictions, modelList, testProbData, testLabels):
         total += 1.0
     return correct/total
 
-def singleWeight(brandList, modelList, useDocVector):
+def singleWeight(brandList, modelList):
     print str(modelList)
-    resultFile = open('HybridData/Experiment/labelPred.result', 'a')
+    resultFile = open('HybridData/Experiment/MLP.result', 'a')
     resultFile.write(str(modelList) + '\n')
     for brand in brandList:
         print brand
         accuracySum1 = 0.0
         accuracySum2 = 0.0
-        accuracySum3 = 0.0
-        accuracySum4 = 0.0
+
         trainIndex = {}
         testIndex = {}
         trainIndexFile = open('HybridData/Experiment/TrainIndex/'+brand+'.train', 'r')
@@ -117,15 +117,13 @@ def singleWeight(brandList, modelList, useDocVector):
             #trainLabels, validList = trainLabeler(trainProbData, trainLabels, modelList, trainSize)
             #trainFeature = features[validList]
 
-            model1 = LogisticRegression()
-            model2 = LogisticRegression()
-            model3 = svm.SVC()
-            model4 = svm.SVC()
+            #model2 = LogisticRegression()
+            #model3 = svm.SVC()
+            model1 = MLPClassifier(algorithm='sgd', activation='logistic', learning_rate_init=0.02, learning_rate='constant', batch_size=1)
+            model2 = MLPClassifier(algorithm='sgd', activation='logistic', learning_rate_init=0.02, learning_rate='constant', batch_size=1)
 
             model1.fit(features1, trainLabels)
             model2.fit(features2, trainLabels)
-            model3.fit(features1, trainLabels)
-            model4.fit(features2, trainLabels)
 
             # testing
             flag, testSize = eu.checkSize(testProbData, modelList)
@@ -137,38 +135,28 @@ def singleWeight(brandList, modelList, useDocVector):
             testFeatures2 = docAppend(testDocVector, testProbData, labelCorpus, modelList, testSize, False)
             #testFeatures1, labels1 = testLabeler(features, testProbData, testLabels, modelList, testSize)
 
-
             predictions1 = model1.predict(testFeatures1)
             predictions2 = model2.predict(testFeatures2)
-            predictions3 = model3.predict(testFeatures1)
-            predictions4 = model4.predict(testFeatures2)
 
             accuracySum1 += evaluator(predictions1, testLabels)
             accuracySum2 += evaluator(predictions2, testLabels)
-            accuracySum3 += evaluator(predictions3, testLabels)
-            accuracySum4 += evaluator(predictions4, testLabels)
 
             #accuracySum3 += evaluator2(predictions3, modelList, testProbData, testLabels)
             #accuracySum4 += evaluator2(predictions4, modelList, testProbData, testLabels)
 
-        print 'MaxEnt All\t '+str(accuracySum1 / 5.0)
-        print 'MaxEnt Prob\t'+str(accuracySum2 / 5.0)
-        print 'SVM All\t'+str(accuracySum3 / 5.0)
-        print 'SMV Prob\t'+str(accuracySum4 / 5.0)
+        print 'MLP All\t '+str(accuracySum1 / 5.0)
+        print 'MLP Prob\t'+str(accuracySum2 / 5.0)
 
         resultFile.write(brand + '\t' + str(accuracySum1 / 5.0) + '\n')
         resultFile.write(brand + '\t' + str(accuracySum2 / 5.0) + '\n')
-        resultFile.write(brand + '\t' + str(accuracySum3 / 5.0) + '\n')
-        resultFile.write(brand + '\t' + str(accuracySum4 / 5.0) + '\n')
 
     resultFile.close()
 
 
 brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'BathAndBodyWorks']
-# runModelList = [['MaxEnt', 'NaiveBayes']]
-#runModelList = [['MaxEnt', 'NaiveBayes'], ['LLDA', 'Alchemy']]
-runModelList = [['MaxEnt', 'NaiveBayes'], ['LLDA', 'Alchemy'], ['LLDA', 'MaxEnt'], ['Alchemy', 'MaxEnt'], ['LLDA', 'MaxEnt', 'NaiveBayes', 'Alchemy']]
+#brandList = ['BathAndBodyWorks']
+runModelList = [['NaiveBayes', 'Alchemy'], ['LLDA', 'Alchemy'], ['LLDA', 'NaiveBayes'], ['Alchemy', 'MaxEnt'], ['LLDA', 'NaiveBayes', 'Alchemy']]
 
 if __name__ == "__main__":
     for modelList in runModelList:
-        singleWeight(brandList=brandList, modelList=modelList, useDocVector=False)
+        singleWeight(brandList=brandList, modelList=modelList)
