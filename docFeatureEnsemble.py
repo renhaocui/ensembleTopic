@@ -4,8 +4,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import modelUtility
 import ensembleUtility as eu
 import sys
-#from sklearn.linear_model import LogisticRegression
-#from sklearn import svm
+from sklearn.linear_model import LogisticRegression
+from sklearn import svm
 from sklearn.neural_network import MLPClassifier
 
 def docAppend(vectorData, probData, labelCorpus, modelList, trainSize, useDocVector):
@@ -74,9 +74,9 @@ def evaluator2(predictions, modelList, testProbData, testLabels):
         total += 1.0
     return correct/total
 
-def singleWeight(brandList, modelList, useDocVector):
+def singleWeight(brandList, modelList, classifier, useDocVector):
     print str(modelList)
-    resultFile = open('HybridData/Experiment/MLP_doc_prob.result', 'a')
+    resultFile = open('HybridData/Experiment/'+classifier+'_'+str(useDocVector)+'.result', 'a')
     resultFile.write(str(modelList) + '\n')
     for brand in brandList:
         print brand
@@ -93,7 +93,7 @@ def singleWeight(brandList, modelList, useDocVector):
         trainIndexFile.close()
         testIndexFile.close()
         for fold in range(5):
-            print 'Fold: '+str(fold)
+            #print 'Fold: '+str(fold)
             trainProbData, testProbData, trainLabels, testLabels, labelCorpus = eu.consolidateReader(brand, fold, modelList)
 
             flag, trainSize = eu.checkSize(trainProbData, modelList)
@@ -115,9 +115,12 @@ def singleWeight(brandList, modelList, useDocVector):
             #trainLabels, validList = trainLabeler(trainProbData, trainLabels, modelList, trainSize)
             #trainFeature = features[validList]
 
-            #model2 = LogisticRegression()
-            #model3 = svm.SVC()
-            model = MLPClassifier(algorithm='sgd', activation='logistic', learning_rate_init=0.02, learning_rate='constant', batch_size=10)
+            if classifier == 'MaxEnt':
+                model = LogisticRegression()
+            elif classifier == 'SVM':
+                model = svm.SVC()
+            elif classifier == 'MLP':
+                model = MLPClassifier(algorithm='sgd', activation='logistic', learning_rate_init=0.02, learning_rate='constant', batch_size=10)
 
             model.fit(features, trainLabels)
 
@@ -151,4 +154,5 @@ runModelList = [['NaiveBayes', 'Alchemy'], ['LLDA', 'Alchemy'], ['LLDA', 'NaiveB
 
 if __name__ == "__main__":
     for modelList in runModelList:
-        singleWeight(brandList=brandList, modelList=modelList, useDocVector=True)
+        singleWeight(brandList=brandList, modelList=modelList, classifier='MaxEnt',useDocVector=False)
+        singleWeight(brandList=brandList, modelList=modelList, classifier='MaxEnt',useDocVector=True)
