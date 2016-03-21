@@ -6,7 +6,7 @@ import ensembleUtility as eu
 import sys
 from sklearn.linear_model import LogisticRegression
 from sklearn import svm
-from sklearn.neural_network import MLPClassifier
+#from sklearn.neural_network import MLPClassifier
 
 def docAppend(vectorData, probData, labelCorpus, modelList, trainSize, useDocVector):
     probFeatures = []
@@ -119,8 +119,8 @@ def singleWeight(brandList, modelList, classifier, useDocVector):
                 model = LogisticRegression()
             elif classifier == 'SVM':
                 model = svm.SVC()
-            elif classifier == 'MLP':
-                model = MLPClassifier(algorithm='sgd', activation='logistic', learning_rate_init=0.02, learning_rate='constant', batch_size=10)
+            #elif classifier == 'MLP':
+            #    model = MLPClassifier(algorithm='sgd', activation='logistic', learning_rate_init=0.02, learning_rate='constant', batch_size=20)
 
             model.fit(features, trainLabels)
 
@@ -152,7 +152,10 @@ brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'BathAndBodyWorks']
 #brandList = ['BathAndBodyWorks']
 runModelList = [['NaiveBayes', 'Alchemy'], ['LLDA', 'Alchemy'], ['LLDA', 'NaiveBayes'], ['LLDA', 'NaiveBayes', 'Alchemy']]
 
+
 if __name__ == "__main__":
     for modelList in runModelList:
-        singleWeight(brandList=brandList, modelList=modelList, classifier='MaxEnt',useDocVector=False)
-        singleWeight(brandList=brandList, modelList=modelList, classifier='MaxEnt',useDocVector=True)
+        #print 'False'
+        singleWeight(brandList=brandList, modelList=modelList, classifier='SVM',useDocVector=False)
+        #print 'True'
+        #singleWeight(brandList=brandList, modelList=modelList, classifier='SVM', useDocVector=True)

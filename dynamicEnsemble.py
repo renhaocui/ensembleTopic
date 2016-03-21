@@ -183,7 +183,7 @@ def singleWeight(brandList, modelList, iterations=30, learningRate=0.9):
                 print 'Training data size error across models!'
                 sys.exit()
 
-            weights, totalWeights, updateCounts = iniWeight(modelList)
+            #weights, totalWeights, updateCounts = iniWeight(modelList)
             # modelDiff(trainProbData, modelList, trainLabels, trainSize, '../Experiment/'+brand+'.output')
             '''
             # weight training
@@ -267,9 +267,7 @@ def vectorEnsemble(brandList, modelList, iterations=100, learningRate=0.9):
 
 
 brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'BathAndBodyWorks']
-# runModelList = [['MaxEnt', 'NaiveBayes']]
-runModelList = [['MaxEnt', 'NaiveBayes'], ['LLDA', 'Alchemy'], ['LLDA', 'MaxEnt'], ['Alchemy', 'MaxEnt'],
-                ['LLDA', 'MaxEnt', 'NaiveBayes', 'Alchemy']]
+runModelList = [['NaiveBayes', 'Alchemy'], ['LLDA', 'Alchemy'], ['LLDA', 'NaiveBayes'], ['LLDA', 'NaiveBayes', 'Alchemy']]
 
 if __name__ == "__main__":
     for modelList in runModelList:
