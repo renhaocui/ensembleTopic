@@ -1,0 +1,10 @@
+['LLDA', 'NaiveBayes', 'Alchemy']
+Elmers	0.888338423424
+Chilis	0.935152972582
+Dominos	0.882376709688
+Triclosan	0.444898429852
+BathAndBodyWorks	0.590640612685
+['LLDA', 'NaiveBayes']
+Triclosan	0.441354640246
+['LLDA', 'NaiveBayes']
+Dominos	0.879297630017
