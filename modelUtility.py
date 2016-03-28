@@ -90,7 +90,7 @@ def readData3(docFileName, labelFileName, alchemyFileName):
     candLabel = max(labelCorpus.iteritems(), key=operator.itemgetter(1))[0]
 
     for line in docFile:
-        docOutput.append(tweetTextCleaner.tweetCleaner(line.strip()))
+        docOutput.append(tweetTextCleaner.tweetCleaner(line.strip().lower()))
     docFile.close()
 
     for line in alchemyFile:

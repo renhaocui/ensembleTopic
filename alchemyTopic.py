@@ -2,15 +2,15 @@
 from __future__ import print_function
 from alchemyapi import AlchemyAPI
 
-brand = 'BathAndBodyWorks'
-startIndex = 33001
-stopIndex = 60000
+brand = 'TriclosanV'
+startIndex = 0
+stopIndex = 11006
 
 if startIndex > 0:
-    outputAlchemyFile = open('alchemyData\\'+brand+'.alchemy', 'a')
+    outputAlchemyFile = open('HybridData/Original/'+brand+'.alchemy', 'a')
 else:
-    outputAlchemyFile = open('alchemyData\\'+brand+'.alchemy', 'w')
-contentFile = open('alchemyData\\'+brand+'.content', 'r')
+    outputAlchemyFile = open('HybridData/Original/'+brand+'.alchemy', 'w')
+contentFile = open('HybridData/Original/'+brand+'.content', 'r')
 content = []
 
 alchemyapi = AlchemyAPI()
@@ -26,6 +26,7 @@ for item in content:
     print(index)
     try:
         response = alchemyapi.taxonomy('text', item)
+        print(response)
         if response['status'] == 'OK':
             output = ''
             for category in response['taxonomy']:

@@ -5,7 +5,7 @@ from langdetect import detect
 
 __author__ = 'renhao.cui'
 
-brand = 'Triclosan'
+brand = 'TriclosanV'
 
 puncList = ''' !()-[]{};:'"\,<>./?@#$%^&*_~'''
 
@@ -43,11 +43,11 @@ def cleanHead(input):
             break
     return input
 
-outputContentFile = open('keywordData\\'+brand+'.content', 'w')
-outputLabelFile = open('keywordData\\'+brand+'.keyword', 'w')
+outputContentFile = open('HybridData/Original/'+brand+'.content', 'w')
+outputLabelFile = open('HybridData/Original/'+brand+'.keyword', 'w')
 #nonTopicFile = open('supportData\\'+brand+'.nonTopic', 'w')
 
-path = 'oriData\\'+brand
+path = 'userVerified/'+brand
 
 tweets = {}
 nonTopicTweets = []
@@ -61,7 +61,7 @@ index = 1
 for file in listing:
     print('processing file: ' + str(index))
 
-    inputFile = open(path + '\\' + file, 'r')
+    inputFile = open(path + '/' + file, 'r')
     line = inputFile.readline()
     data = json.loads(line.strip())
     for item in data:
@@ -70,6 +70,8 @@ for file in listing:
         string = extractLinks(string)
         string = removeUsername(string)
         string = shrinkPuncuation(string)
+        string = string.replace('"', "'")
+
         topic = item['topics']
 
         if len(topic) > 0 and len(string) > 10:
@@ -94,7 +96,7 @@ for file in listing:
     inputFile.close()
 
 for (key, value) in tweets.items():
-    outputContentFile.write(key.encode('utf-8') + '\n')
+    outputContentFile.write(key.decode('ascii', 'ignore').encode("ascii") + '\n')
     output = ''
     for item in value:
         temp = item.replace(' ', '_')
