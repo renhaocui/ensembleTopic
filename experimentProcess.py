@@ -104,5 +104,5 @@ def main(brandList=['Elmers'], modelList=['NaiveBayes'], trainProbFlag=False):
 if __name__ == "__main__":
     #brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'TriclosanV', 'BathAndBodyWorks']
     brandList = ['TriclosanV', 'BathAndBodyWorks']
-    modelList = ['NaiveBayes', 'MaxEnt', 'LLDA']
+    modelList = ['LLDA', 'NaiveBayes', 'MaxEnt']
     main(brandList=brandList, modelList=modelList, trainProbFlag=True)

@@ -96,7 +96,7 @@ for file in listing:
     inputFile.close()
 
 for (key, value) in tweets.items():
-    outputContentFile.write(key.decode('ascii', 'ignore').encode("ascii") + '\n')
+    outputContentFile.write(key.encode('ascii', 'ignore') + '\n')
     output = ''
     for item in value:
         temp = item.replace(' ', '_')

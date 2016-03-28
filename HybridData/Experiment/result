@@ -10,3 +10,9 @@ Dominos	NaiveBayes	0.71724430147
 Triclosan	LLDA	0.422749692555
 Triclosan	MaxEnt	0.466911740285
 Triclosan	NaiveBayes	0.424179397047
+TriclosanV	LLDA	0.399364214351
+TriclosanV	MaxEnt	0.461035422343
+TriclosanV	NaiveBayes	0.420526793824
+BathAndBodyWorks	LLDA	0.454042078898
+BathAndBodyWorks	MaxEnt	0.639550580301
+BathAndBodyWorks	NaiveBayes	0.463920534908
