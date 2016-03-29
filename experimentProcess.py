@@ -24,7 +24,7 @@ def transProb(inputDict):
     return outputDict
 
 def main(brandList=['Elmers'], modelList=['NaiveBayes'], trainProbFlag=False):
-    resultFile = open('HybridData/Experiment/result', 'a')
+    resultFile = open('HybridData/Experiment/individual.result', 'a')
     for brand in brandList:
         print brand
         docContent, keywordLabels, candLabel, alchemyLabels = modelUtility.readData3(
@@ -50,6 +50,10 @@ def main(brandList=['Elmers'], modelList=['NaiveBayes'], trainProbFlag=False):
             trainIndexFile.flush()
             testIndexFile.flush()
 
+            trainLabelFile = open('../Experiment/Labels/Train/' + brand + '.' + str(fold), 'w')
+            testLabelFile = open('../Experiment/Labels/Test/' + brand + '.' + str(fold), 'w')
+
+
             feature_train = features[train_index]
             feature_test = features[test_index]
             doc_train = []
@@ -66,6 +70,12 @@ def main(brandList=['Elmers'], modelList=['NaiveBayes'], trainProbFlag=False):
                 doc_test.append(docContent[index])
                 keyword_test.append(keywordLabels[index])
                 alchemy_test.append(alchemyLabels[index])
+            for label in keyword_train:
+                trainLabelFile.write(label+'\n')
+            for label in keyword_test:
+                testLabelFile.write(label+'\n')
+            trainLabelFile.close()
+            testLabelFile.close()
 
             for model in modelList:
                 probFile = open('../Experiment/ProbData/'+brand+'/'+model+'prob.'+str(fold), 'w')
@@ -102,7 +112,7 @@ def main(brandList=['Elmers'], modelList=['NaiveBayes'], trainProbFlag=False):
 
 #ensModelList = ['RandomForest', 'AdaBoost']
 if __name__ == "__main__":
-    #brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'TriclosanV', 'BathAndBodyWorks']
-    brandList = ['TriclosanV', 'BathAndBodyWorks']
-    modelList = ['LLDA', 'NaiveBayes', 'MaxEnt']
+    brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'TriclosanV', 'BathAndBodyWorks']
+    #brandList = ['TriclosanV', 'BathAndBodyWorks']
+    modelList = ['LLDA', 'NaiveBayes', 'MaxEnt', 'Alchemy']
     main(brandList=brandList, modelList=modelList, trainProbFlag=True)

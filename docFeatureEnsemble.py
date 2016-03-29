@@ -4,8 +4,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import modelUtility
 import ensembleUtility as eu
 import sys
-from sklearn.linear_model import LogisticRegression
-from sklearn import svm
+#from sklearn.linear_model import LogisticRegression
+#from sklearn import svm
 from sklearn.neural_network import MLPClassifier
 
 def docAppend(vectorData, probData, labelCorpus, modelList, trainSize, useDocVector):
@@ -148,14 +148,11 @@ def singleWeight(brandList, modelList, classifier, useDocVector):
 
     resultFile.close()
 
-
-#brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'BathAndBodyWorks']
-brandList = ['Dominos']
-#runModelList = [['NaiveBayes', 'Alchemy'], ['LLDA', 'Alchemy'], ['LLDA', 'NaiveBayes'], ['LLDA', 'NaiveBayes', 'Alchemy']]
-runModelList = [['LLDA', 'NaiveBayes']]
-
-
 if __name__ == "__main__":
+    brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'TriclosanV', 'BathAndBodyWorks']
+    #brandList = ['Dominos']
+    runModelList = [['NaiveBayes', 'Alchemy'], ['LLDA', 'Alchemy'], ['LLDA', 'NaiveBayes'], ['LLDA', 'NaiveBayes', 'Alchemy']]
+    #runModelList = [['LLDA', 'NaiveBayes']]
     for modelList in runModelList:
         #print 'True'
         singleWeight(brandList=brandList, modelList=modelList, classifier='MLP', useDocVector=True)

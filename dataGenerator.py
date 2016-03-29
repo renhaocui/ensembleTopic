@@ -1,9 +1,9 @@
+__author__ = 'renhao.cui'
 import json
 import os
 import re
 from langdetect import detect
-
-__author__ = 'renhao.cui'
+import textCleaner
 
 brand = 'TriclosanV'
 

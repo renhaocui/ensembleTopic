@@ -1,0 +1,28 @@
+['NaiveBayes', 'Alchemy']
+Elmers	['NaiveBayes', 'Alchemy']	0.848559498694
+Chilis	['NaiveBayes', 'Alchemy']	0.882440995763
+Dominos	['NaiveBayes', 'Alchemy']	0.781402266731
+Triclosan	['NaiveBayes', 'Alchemy']	0.449532857446
+TriclosanV	['NaiveBayes', 'Alchemy']	0.435646348312
+BathAndBodyWorks	['NaiveBayes', 'Alchemy']	0.517057662439
+['LLDA', 'Alchemy']
+Elmers	['LLDA', 'Alchemy']	0.836502710149
+Chilis	['LLDA', 'Alchemy']	0.898985172681
+Dominos	['LLDA', 'Alchemy']	0.8546289361
+Triclosan	['LLDA', 'Alchemy']	0.438560517646
+TriclosanV	['LLDA', 'Alchemy']	0.416148439661
+BathAndBodyWorks	['LLDA', 'Alchemy']	0.523076521134
+['LLDA', 'NaiveBayes']
+Elmers	['LLDA', 'NaiveBayes']	0.84225905197
+Chilis	['LLDA', 'NaiveBayes']	0.903339858373
+Dominos	['LLDA', 'NaiveBayes']	0.857505250614
+Triclosan	['LLDA', 'NaiveBayes']	0.443194922015
+TriclosanV	['LLDA', 'NaiveBayes']	0.426492317751
+BathAndBodyWorks	['LLDA', 'NaiveBayes']	0.5214225211
+['LLDA', 'NaiveBayes', 'Alchemy']
+Elmers	['LLDA', 'NaiveBayes', 'Alchemy']	0.846726676584
+Chilis	['LLDA', 'NaiveBayes', 'Alchemy']	0.90428733542
+Dominos	['LLDA', 'NaiveBayes', 'Alchemy']	0.85953556434
+Triclosan	['LLDA', 'NaiveBayes', 'Alchemy']	0.446125423717
+TriclosanV	['LLDA', 'NaiveBayes', 'Alchemy']	0.428964007007
+BathAndBodyWorks	['LLDA', 'NaiveBayes', 'Alchemy']	0.52950906193
