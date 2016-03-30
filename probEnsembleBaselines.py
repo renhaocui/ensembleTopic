@@ -4,7 +4,7 @@ import operator
 
 
 def probSum(probData, dataSize, modelList, labelCorpus):
-    output = []
+    output = {}
     for index in range(dataSize):
         temp = {}
         for model in modelList:
@@ -14,28 +14,28 @@ def probSum(probData, dataSize, modelList, labelCorpus):
                 if label in probData[model][str(index)]:
                     score = probData[model][str(index)][label]
                     temp[label] += score
-        output[index] = max(temp, key=temp.get)[0]
+        output[index] = max(temp, key=temp.get)
     return output
 
 
 def probComp(probData, dataSize, modelList):
-    output = []
+    output = {}
     for index in range(dataSize):
         comp = {}
         temp = {}
         for model in modelList:
-            pred, prob = max(probData[model][str(index)], key=probData[model][str(index)].get)
-            comp[model] = prob
+            pred = max(probData[model][str(index)], key=probData[model][str(index)].get)
+            comp[model] = probData[model][str(index)][pred]
             temp[model] = pred
-        output[index] = temp[max(comp, key=comp.get)[0]]
+        output[index] = temp[max(comp, key=comp.get)]
     return output
 
 
-def evaluator(predictions, labels):
+def evaluator(predictions, labels, testSize):
     correct = 0.0
     total = 0.0
-    for index, pred in enumerate(predictions):
-        if pred in labels[index]:
+    for index in range(testSize):
+        if predictions[index] in labels[index]:
             correct += 1.0
         total += 1.0
     return correct / total
@@ -43,7 +43,7 @@ def evaluator(predictions, labels):
 
 def baselines(brandList, modelList):
     print str(modelList)
-    resultFile = open('HybridData/Experiment/ensembleBaselines.result', 'a')
+    resultFile = open('HybridData/Experiment/probEnsembleBaselines.result', 'a')
     resultFile.write(str(modelList) + '\n')
     for brand in brandList:
         print brand
@@ -77,9 +77,9 @@ def baselines(brandList, modelList):
 
             # probDict[individualModel] = {lineNum: {topic: prob}}
             sumPredictions = probSum(testProbData, testSize, modelList, labelCorpus)
-            accuracySum1 += evaluator(sumPredictions, testLabels)
+            accuracySum1 += evaluator(sumPredictions, testLabels, testSize)
             compPredictions = probComp(testProbData, testSize, modelList)
-            accuracySum2 += evaluator(compPredictions, testLabels)
+            accuracySum2 += evaluator(compPredictions, testLabels, testSize)
 
         print 'probSum: ' + str(accuracySum1 / 5)
         print 'probComp: ' + str(accuracySum2 / 5)
@@ -90,6 +90,6 @@ def baselines(brandList, modelList):
 
 if __name__ == "__main__":
     brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'TriclosanV', 'BathAndBodyWorks']
-    runModelList = [['LLDA', 'NaiveBayes']]
+    runModelList = [['NaiveBayes', 'Alchemy'], ['LLDA', 'Alchemy'], ['LLDA', 'NaiveBayes'], ['LLDA', 'NaiveBayes', 'Alchemy']]
     for modelList in runModelList:
         baselines(brandList, modelList)
