@@ -3,9 +3,6 @@ import json
 import os
 import re
 from langdetect import detect
-import textCleaner
-
-brand = 'TriclosanV'
 
 puncList = ''' !()-[]{};:'"\,<>./?@#$%^&*_~'''
 
@@ -43,66 +40,73 @@ def cleanHead(input):
             break
     return input
 
-outputContentFile = open('HybridData/Original/'+brand+'.content', 'w')
-outputLabelFile = open('HybridData/Original/'+brand+'.keyword', 'w')
-#nonTopicFile = open('supportData\\'+brand+'.nonTopic', 'w')
+def run(brand):
+    outputContentFile = open('HybridData/Original/'+brand+'.content', 'w')
+    outputLabelFile = open('HybridData/Original/'+brand+'.keyword', 'w')
+    #nonTopicFile = open('supportData\\'+brand+'.nonTopic', 'w')
 
-path = 'userVerified/'+brand
+    path = 'userVerified/'+brand
 
-tweets = {}
-nonTopicTweets = []
+    tweets = {}
+    nonTopicTweets = []
 
-listing = os.listdir(path)
+    listing = os.listdir(path)
 
-size = len(listing)
+    size = len(listing)
 
-index = 1
+    index = 1
 
-for file in listing:
-    print('processing file: ' + str(index))
+    for file in listing:
+        print('processing file: ' + str(index))
 
-    inputFile = open(path + '/' + file, 'r')
-    line = inputFile.readline()
-    data = json.loads(line.strip())
-    for item in data:
-        string = item['content'].replace('\n', '')
-        string = string.replace('\r', '')
-        string = extractLinks(string)
-        string = removeUsername(string)
-        string = shrinkPuncuation(string)
-        string = string.replace('"', "'")
+        inputFile = open(path + '/' + file, 'r')
+        line = inputFile.readline()
+        data = json.loads(line.strip())
+        for item in data:
+            string = item['content'].replace('\n', '')
+            string = string.replace('\r', '')
+            string = extractLinks(string)
+            string = removeUsername(string)
+            string = shrinkPuncuation(string)
+            string = string.replace('"', "'")
 
-        topic = item['topics']
+            topic = item['topics']
 
-        if len(topic) > 0 and len(string) > 10:
-            try:
-                if detect(string) == 'en':
-                    if string not in tweets.keys():
-                        tweets[string] = topic
-            except:
-                print('error in language detection for tweet: ' + string)
-        '''
-        if len(topic) == 0 and len(nonTopicTweets) <= 10000 and len(string) > 10:
-            try:
-                if detect(string) == 'en':
-                    if string not in nonTopicTweets:
-                        nonTopicTweets.append(string)
-                        nonTopicFile.write(string.encode('utf-8') + '\n')
-                        nonTopicFile.flush()
-            except:
-                print('error in language detection for tweet: ' + string)
-        '''
-    index += 1
-    inputFile.close()
+            if len(topic) > 0 and len(string) > 10:
+                try:
+                    if detect(string) == 'en':
+                        if string not in tweets.keys():
+                            tweets[string] = topic
+                except:
+                    print('error in language detection for tweet: ' + string)
+            '''
+            if len(topic) == 0 and len(nonTopicTweets) <= 10000 and len(string) > 10:
+                try:
+                    if detect(string) == 'en':
+                        if string not in nonTopicTweets:
+                            nonTopicTweets.append(string)
+                            nonTopicFile.write(string.encode('utf-8') + '\n')
+                            nonTopicFile.flush()
+                except:
+                    print('error in language detection for tweet: ' + string)
+            '''
+        index += 1
+        inputFile.close()
 
-for (key, value) in tweets.items():
-    outputContentFile.write(key.encode('ascii', 'ignore') + '\n')
-    output = ''
-    for item in value:
-        temp = item.replace(' ', '_')
-        output = output+temp.replace("'", '') + ' '
-    outputLabelFile.write(output + '\n')
+    for (key, value) in tweets.items():
+        outputContentFile.write(key.encode('ascii', 'ignore') + '\n')
+        output = ''
+        for item in value:
+            temp = item.replace(' ', '_')
+            output = output+temp.replace("'", '') + ' '
+        outputLabelFile.write(output + '\n')
 
-outputContentFile.close()
-outputLabelFile.close()
-#nonTopicFile.close()
+    outputContentFile.close()
+    outputLabelFile.close()
+    #nonTopicFile.close()
+
+if __name__ == "__main__":
+    brandList = ['PalmOil']
+    for brand in brandList:
+        print brand
+        run(brand)

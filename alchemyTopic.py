@@ -131,10 +131,11 @@ def cleanFiles(brand):
     labelOutputFile.close()
     alchemyOutputFile.close()
 
-brand = 'TriclosanV'
-startIndex = 0
-stopIndex = 11010
+if __name__ == "__main__":
+    brand = 'POCruisesAustralia'
+    startIndex = 0
+    stopIndex = 15255
 
-#extractAlchemy(brand, startIndex, stopIndex)
-#fixAlchemy(brand)
-cleanFiles(brand)
+    extractAlchemy(brand, startIndex, stopIndex)
+    #fixAlchemy(brand)
+    #cleanFiles(brand)
