@@ -1,0 +1,8 @@
+['NaiveBayes', 'Alchemy']
+POCruisesAustraliaV	0.765089216447
+['LLDA', 'Alchemy']
+POCruisesAustraliaV	0.761210240497
+['LLDA', 'NaiveBayes']
+POCruisesAustraliaV	0.762141194725
+['LLDA', 'NaiveBayes', 'Alchemy']
+POCruisesAustraliaV	0.763615205586

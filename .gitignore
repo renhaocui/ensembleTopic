@@ -12,3 +12,4 @@ TMT/LDAFormatTrain.csv
 TMT/LDAFormatTest-document-topic-distributuions.csv
 TMT/LDAFormatTrain-document-topic-distributuions.csv
 *.txt
+LLDAdata/label-index.txt

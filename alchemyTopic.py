@@ -26,7 +26,7 @@ def extractAlchemy(brand, startIndex, stopIndex):
         if index < startIndex:
             index += 1
             continue
-        if index % 1000 == 1:
+        if index % 100 == 1:
             print(index)
         try:
             response = alchemyapi.taxonomy('text', item)
@@ -132,10 +132,10 @@ def cleanFiles(brand):
     alchemyOutputFile.close()
 
 if __name__ == "__main__":
-    brand = 'POCruisesAustralia'
+    brand = 'POCruisesAustraliaV'
     startIndex = 0
     stopIndex = 15255
 
     extractAlchemy(brand, startIndex, stopIndex)
     #fixAlchemy(brand)
-    #cleanFiles(brand)
+    cleanFiles(brand)

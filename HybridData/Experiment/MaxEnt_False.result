@@ -26,3 +26,11 @@ Dominos	['LLDA', 'NaiveBayes', 'Alchemy']	0.85953556434
 Triclosan	['LLDA', 'NaiveBayes', 'Alchemy']	0.446125423717
 TriclosanV	['LLDA', 'NaiveBayes', 'Alchemy']	0.428964007007
 BathAndBodyWorks	['LLDA', 'NaiveBayes', 'Alchemy']	0.52950906193
+['NaiveBayes', 'Alchemy']
+POCruisesAustraliaV	0.763925523662
+['LLDA', 'Alchemy']
+POCruisesAustraliaV	0.744918541505
+['LLDA', 'NaiveBayes']
+POCruisesAustraliaV	0.744220325834
+['LLDA', 'NaiveBayes', 'Alchemy']
+POCruisesAustraliaV	0.744996121024

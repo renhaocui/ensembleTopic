@@ -112,7 +112,7 @@ def main(brandList=['Elmers'], modelList=['NaiveBayes'], trainProbFlag=False):
 
 #ensModelList = ['RandomForest', 'AdaBoost']
 if __name__ == "__main__":
-    brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'TriclosanV', 'BathAndBodyWorks']
-    #brandList = ['TriclosanV', 'BathAndBodyWorks']
+    #brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'TriclosanV', 'BathAndBodyWorks']
+    brandList = ['POCruisesAustraliaV']
     modelList = ['LLDA', 'NaiveBayes', 'MaxEnt', 'Alchemy']
     main(brandList=brandList, modelList=modelList, trainProbFlag=True)

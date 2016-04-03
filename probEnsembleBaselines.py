@@ -89,7 +89,8 @@ def baselines(brandList, modelList):
 
 
 if __name__ == "__main__":
-    brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'TriclosanV', 'BathAndBodyWorks']
+    #brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'TriclosanV', 'BathAndBodyWorks']
+    brandList = ['POCruisesAustraliaV']
     runModelList = [['NaiveBayes', 'Alchemy'], ['LLDA', 'Alchemy'], ['LLDA', 'NaiveBayes'], ['LLDA', 'NaiveBayes', 'Alchemy']]
     for modelList in runModelList:
         baselines(brandList, modelList)

@@ -19,3 +19,11 @@ Dominos	0.860076893549
 Triclosan	0.443330139851
 TriclosanV	0.428230735702
 BathAndBodyWorks	0.538514438008
+['NaiveBayes', 'Alchemy']
+POCruisesAustraliaV	0.763227307991
+['LLDA', 'Alchemy']
+POCruisesAustraliaV	0.717688130334
+['LLDA', 'NaiveBayes']
+POCruisesAustraliaV	0.729325058185
+['LLDA', 'NaiveBayes', 'Alchemy']
+POCruisesAustraliaV	0.717377812258

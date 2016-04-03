@@ -50,3 +50,15 @@ TriclosanV	probSum:	0.118180442746
 TriclosanV	probComp:	0.109209520457
 BathAndBodyWorks	probSum:	0.155275701639
 BathAndBodyWorks	probComp:	0.149141881988
+['NaiveBayes', 'Alchemy']
+POCruisesAustraliaV	probSum:	0.765166795966
+POCruisesAustraliaV	probComp:	0.764934057409
+['LLDA', 'Alchemy']
+POCruisesAustraliaV	probSum:	0.762141194725
+POCruisesAustraliaV	probComp:	0.762761830877
+['LLDA', 'NaiveBayes']
+POCruisesAustraliaV	probSum:	0.738867339022
+POCruisesAustraliaV	probComp:	0.738557020946
+['LLDA', 'NaiveBayes', 'Alchemy']
+POCruisesAustraliaV	probSum:	0.76485647789
+POCruisesAustraliaV	probComp:	0.764546159814

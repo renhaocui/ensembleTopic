@@ -142,19 +142,22 @@ def singleWeight(brandList, modelList, classifier, useDocVector):
             #accuracySum3 += evaluator2(predictions3, modelList, testProbData, testLabels)
             #accuracySum4 += evaluator2(predictions4, modelList, testProbData, testLabels)
 
-        print 'MLP \t '+str(accuracySum / 5.0)
+        print classifier + '\t '+str(accuracySum / 5.0)
 
         resultFile.write(brand + '\t' + str(accuracySum / 5.0) + '\n')
 
     resultFile.close()
 
 if __name__ == "__main__":
-    brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'TriclosanV', 'BathAndBodyWorks']
-    #brandList = ['Dominos']
-    #runModelList = [['NaiveBayes', 'Alchemy'], ['LLDA', 'Alchemy'], ['LLDA', 'NaiveBayes'], ['LLDA', 'NaiveBayes', 'Alchemy']]
-    runModelList = [['LLDA', 'NaiveBayes', 'Alchemy']]
+    #brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'TriclosanV', 'BathAndBodyWorks']
+    brandList = ['POCruisesAustraliaV']
+    runModelList = [['NaiveBayes', 'Alchemy'], ['LLDA', 'Alchemy'], ['LLDA', 'NaiveBayes'], ['LLDA', 'NaiveBayes', 'Alchemy']]
+    #runModelList = [['LLDA', 'NaiveBayes', 'Alchemy']]
     for modelList in runModelList:
         #print 'True'
         singleWeight(brandList=brandList, modelList=modelList, classifier='MLP', useDocVector=False)
+        #singleWeight(brandList=brandList, modelList=modelList, classifier='SVM', useDocVector=True)
+        #singleWeight(brandList=brandList, modelList=modelList, classifier='MaxEnt', useDocVector=False)
+        #singleWeight(brandList=brandList, modelList=modelList, classifier='MaxEnt', useDocVector=True)
         #print 'True'
         #singleWeight(brandList=brandList, modelList=modelList, classifier='SVM', useDocVector=True)

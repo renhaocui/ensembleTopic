@@ -22,3 +22,7 @@ BathAndBodyWorks	LLDA	0.450412480028
 BathAndBodyWorks	Alchemy	0.360035956637
 BathAndBodyWorks	MaxEnt	0.637873544268
 BathAndBodyWorks	NaiveBayes	0.460221978465
+POCruisesAustraliaV	LLDA	0.283785880528
+POCruisesAustraliaV	Alchemy	0.763847944143
+POCruisesAustraliaV	MaxEnt	0.764701318852
+POCruisesAustraliaV	NaiveBayes	0.765011636928
