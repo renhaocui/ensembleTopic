@@ -155,7 +155,7 @@ if __name__ == "__main__":
     #runModelList = [['LLDA', 'NaiveBayes', 'Alchemy']]
     for modelList in runModelList:
         #print 'True'
-        singleWeight(brandList=brandList, modelList=modelList, classifier='MLP', useDocVector=False)
+        singleWeight(brandList=brandList, modelList=modelList, classifier='MLP', useDocVector=True)
         #singleWeight(brandList=brandList, modelList=modelList, classifier='SVM', useDocVector=True)
         #singleWeight(brandList=brandList, modelList=modelList, classifier='MaxEnt', useDocVector=False)
         #singleWeight(brandList=brandList, modelList=modelList, classifier='MaxEnt', useDocVector=True)
