@@ -1,12 +1,15 @@
 
 
 def analyzer(brand):
-    resultFile = open('HybridData/Experiment/topicDist.result', 'a')
+    print brand
+    resultFile = open('HybridData/Experiment/TopicDist/topicDist.result', 'a')
     topicCorpus = {}
     for fold in range(5):
-        trainLabelFile = open('../Experiment/Labels/Train/' + brand + '.' + str(fold), 'w')
-        testLabelFile = open('../Experiment/Labels/Test/' + brand + '.' + str(fold), 'w')
+        trainLabelFile = open('../Experiment/Labels/Train/' + brand + '.' + str(fold), 'r')
+        testLabelFile = open('../Experiment/Labels/Test/' + brand + '.' + str(fold), 'r')
+        total = 0
         for line in trainLabelFile:
+            total += 1
             topic = line.strip()
             if topic not in topicCorpus:
                 topicCorpus[topic] = 1.0
@@ -15,6 +18,7 @@ def analyzer(brand):
         trainLabelFile.close()
 
         for line in testLabelFile:
+            total += 1
             topic = line.strip()
             if topic not in topicCorpus:
                 topicCorpus[topic] = 1.0
@@ -22,10 +26,11 @@ def analyzer(brand):
                 topicCorpus[topic] += 1.0
         testLabelFile.close()
 
+        print total
     resultFile.write(brand+'\n')
     total = sum(topicCorpus.values())
     for topic, count in topicCorpus.items():
-        resultFile.write(topic+'\t'+str(count/total))
+        resultFile.write(topic+'\t'+str(count/total)+'\n')
 
     resultFile.write('\n')
     resultFile.close()
