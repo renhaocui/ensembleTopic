@@ -1,9 +1,20 @@
 import sys
 import ensembleUtility as eu
-import operator
 
+def normalizeDict(inputDict):
+    outputDict = {}
+    total = sum(inputDict.values())
+    for key, value in inputDict.items():
+        outputDict[key] = value/total
+    return outputDict
 
-def probSum(probData, dataSize, modelList, labelCorpus):
+def unifiedDict(modelList):
+    outputDict = {}
+    for model in modelList:
+        outputDict[model] = 1/len(modelList)
+    return outputDict
+
+def probSum(probData, dataSize, modelList, labelCorpus, modelWeight, weightedFlag):
     output = {}
     for index in range(dataSize):
         temp = {}
@@ -13,7 +24,10 @@ def probSum(probData, dataSize, modelList, labelCorpus):
                     temp[label] = 0.0
                 if label in probData[model][str(index)]:
                     score = probData[model][str(index)][label]
-                    temp[label] += score
+                    if weightedFlag:
+                        temp[label] += modelWeight[model] * score
+                    else:
+                        temp[label] += score
         output[index] = max(temp, key=temp.get)
     return output
 
@@ -45,6 +59,19 @@ def baselines(brandList, modelList):
     print str(modelList)
     resultFile = open('HybridData/Experiment/probEnsembleBaselines.result', 'a')
     resultFile.write(str(modelList) + '\n')
+    modelDataWeight = {}
+    indPerfFile = open('HybridData/Experiment/individual.result', 'r')
+    for line in indPerfFile:
+        items = line.strip().split('\t')
+        brand = items[0]
+        model = items[1]
+        prob = float(items[2])
+        if brand not in modelDataWeight:
+            modelDataWeight[brand] = {}
+        if model not in modelDataWeight[brand]:
+            modelDataWeight[brand][model] = prob
+    indPerfFile.close()
+
     for brand in brandList:
         print brand
         accuracySum1 = 0.0
@@ -60,8 +87,9 @@ def baselines(brandList, modelList):
             testIndex[fold] = line.strip().split(',')
         trainIndexFile.close()
         testIndexFile.close()
+
         for fold in range(5):
-            print 'Fold: ' + str(fold)
+            #print 'Fold: ' + str(fold)
             trainProbData, testProbData, trainLabels, testLabels, labelCorpus = eu.consolidateReader(brand, fold,
                                                                                                      modelList)
 
@@ -76,21 +104,21 @@ def baselines(brandList, modelList):
                 sys.exit()
 
             # probDict[individualModel] = {lineNum: {topic: prob}}
-            sumPredictions = probSum(testProbData, testSize, modelList, labelCorpus)
-            accuracySum1 += evaluator(sumPredictions, testLabels, testSize)
-            compPredictions = probComp(testProbData, testSize, modelList)
-            accuracySum2 += evaluator(compPredictions, testLabels, testSize)
+            predictions1 = probComp(testProbData, testSize, modelList)
+            accuracySum1 += evaluator(predictions1, testLabels, testSize)
+            predictions2 = probSum(testProbData, testSize, modelList, labelCorpus, normalizeDict(modelDataWeight[brand]), True)
+            accuracySum2 += evaluator(predictions2, testLabels, testSize)
 
-        print 'probSum: ' + str(accuracySum1 / 5)
-        print 'probComp: ' + str(accuracySum2 / 5)
+        print 'weightedSum: ' + str(accuracySum1 / 5)
+        print 'compProb: ' + str(accuracySum2 / 5)
 
-        resultFile.write(brand + '\tprobSum:\t' + str(accuracySum1 / 5) + '\n')
-        resultFile.write(brand + '\tprobComp:\t' + str(accuracySum2 / 5) + '\n')
+        resultFile.write(brand + '\tweightedSum:\t' + str(accuracySum1 / 5) + '\n')
+        resultFile.write(brand + '\tcompProb:\t' + str(accuracySum2 / 5) + '\n')
 
 
 if __name__ == "__main__":
-    #brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'TriclosanV', 'BathAndBodyWorks']
-    brandList = ['POCruisesAustraliaV']
+    brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'TriclosanV', 'BathAndBodyWorks', 'POCruisesAustraliaV']
+    #brandList = ['POCruisesAustraliaV']
     runModelList = [['NaiveBayes', 'Alchemy'], ['LLDA', 'Alchemy'], ['LLDA', 'NaiveBayes'], ['LLDA', 'NaiveBayes', 'Alchemy']]
     for modelList in runModelList:
         baselines(brandList, modelList)
