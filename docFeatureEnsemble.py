@@ -4,9 +4,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import modelUtility
 import ensembleUtility as eu
 import sys
-#from sklearn.linear_model import LogisticRegression
-#from sklearn import svm
-from sklearn.neural_network import MLPClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn import svm
+#from sklearn.neural_network import MLPClassifier
 
 def docAppend(vectorData, probData, labelCorpus, modelList, trainSize, useDocVector):
     probFeatures = []
@@ -94,7 +94,7 @@ def singleWeight(brandList, modelList, classifier, useDocVector):
         testIndexFile.close()
         for fold in range(5):
             print 'Fold: '+str(fold)
-            trainProbData, testProbData, trainLabels, testLabels, labelCorpus = eu.consolidateReader(brand, fold, modelList)
+            trainProbData, testProbData, trainLabels, testLabels, labelCorpus = eu.consolidateReader(brand, fold, modelList, 0.001)
 
             flag, trainSize = eu.checkSize(trainProbData, modelList)
             if not flag:
@@ -114,7 +114,7 @@ def singleWeight(brandList, modelList, classifier, useDocVector):
             features = docAppend(trainDocVector, trainProbData, labelCorpus, modelList, trainSize, useDocVector)
             #trainLabels, validList = trainLabeler(trainProbData, trainLabels, modelList, trainSize)
             #trainFeature = features[validList]
-            '''
+
             if classifier == 'MaxEnt':
                 model = LogisticRegression()
             elif classifier == 'SVM':
@@ -122,7 +122,7 @@ def singleWeight(brandList, modelList, classifier, useDocVector):
             '''
             if classifier == 'MLP':
                 model = MLPClassifier(algorithm='sgd', activation='logistic', learning_rate_init=0.02, learning_rate='constant', batch_size=10)
-
+            '''
             model.fit(features, trainLabels)
 
             # testing
@@ -149,15 +149,11 @@ def singleWeight(brandList, modelList, classifier, useDocVector):
     resultFile.close()
 
 if __name__ == "__main__":
-    #brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'TriclosanV', 'BathAndBodyWorks']
-    brandList = ['POCruisesAustraliaV']
+    brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'TriclosanV', 'BathAndBodyWorks']
+    #brandList = ['POCruisesAustraliaV']
     runModelList = [['NaiveBayes', 'Alchemy'], ['LLDA', 'Alchemy'], ['LLDA', 'NaiveBayes'], ['LLDA', 'NaiveBayes', 'Alchemy']]
     #runModelList = [['LLDA', 'NaiveBayes', 'Alchemy']]
     for modelList in runModelList:
         #print 'True'
-        singleWeight(brandList=brandList, modelList=modelList, classifier='MLP', useDocVector=True)
-        #singleWeight(brandList=brandList, modelList=modelList, classifier='SVM', useDocVector=True)
-        #singleWeight(brandList=brandList, modelList=modelList, classifier='MaxEnt', useDocVector=False)
-        #singleWeight(brandList=brandList, modelList=modelList, classifier='MaxEnt', useDocVector=True)
-        #print 'True'
-        #singleWeight(brandList=brandList, modelList=modelList, classifier='SVM', useDocVector=True)
+        singleWeight(brandList=brandList, modelList=modelList, classifier='MaxEnt', useDocVector=True)
+        singleWeight(brandList=brandList, modelList=modelList, classifier='MaxEnt', useDocVector=False)

@@ -22,10 +22,7 @@ def probSum(probData, dataSize, modelList, labelCorpus, modelWeight, weightedFla
             for label in labelCorpus:
                 if label not in temp:
                     temp[label] = 0.0
-                if label in probData[model][str(index)]:
-                    score = probData[model][str(index)][label]
-                else:
-                    score = 0.001
+                score = probData[model][str(index)][label]
                 if weightedFlag:
                     temp[label] += modelWeight[model] * score
                 else:
@@ -93,7 +90,7 @@ def baselines(brandList, modelList):
         for fold in range(5):
             #print 'Fold: ' + str(fold)
             trainProbData, testProbData, trainLabels, testLabels, labelCorpus = eu.consolidateReader(brand, fold,
-                                                                                                     modelList)
+                                                                                                     modelList, 0.001)
 
             flag, trainSize = eu.checkSize(trainProbData, modelList)
             if not flag:
