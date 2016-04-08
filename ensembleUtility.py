@@ -1,6 +1,25 @@
 import json
 import operator
 
+def normalization(inputDict):
+    outputDict = {}
+    total = sum(inputDict.values())
+    for key, value in inputDict.items():
+        outputDict[key] = value/total
+    return outputDict
+
+def smooth(probData, labelCorpus, smoothFactor, model):
+    for index, labelProb in probData[model].items():
+        tempDict = {}
+        for label in labelCorpus:
+            if label not in labelProb:
+                tempDict[label] = smoothFactor
+            else:
+                tempDict[label] = labelProb[label]
+        probData[model][index] = normalization(tempDict)
+
+    return probData
+
 def iniPred(inputDict):
     predTopic = max(inputDict.iteritems(), key=operator.itemgetter(1))[0]
     # predScore = max(inputDict.iteritems(), key=operator.itemgetter(1))[1]
@@ -18,7 +37,7 @@ def checkSize(inputDict, modelList):
     return True, size
 
 
-def consolidateReader(brand, fold, modelList):
+def consolidateReader(brand, fold, modelList, smoothFactor):
     # probDict[individualModel] = {lineNum: {topic: prob}}
     trainProbData = {}
     testProbData = {}
@@ -49,6 +68,10 @@ def consolidateReader(brand, fold, modelList):
         if label not in labelCorpus:
             labelCorpus.append(label)
         testLabels.append(label)
+
+    for model in modelList:
+        trainProbData = smooth(trainProbData, labelCorpus, smoothFactor, model)
+        testProbData = smooth(testProbData, labelCorpus, smoothFactor, model)
 
     return trainProbData, testProbData, trainLabels, testLabels, labelCorpus
 

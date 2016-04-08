@@ -17,11 +17,10 @@ def prodProb(probData, modelList, labelCorpus, dataSize):
         for label in labelCorpus:
             prod[label] = 1.0
         for model in modelList:
+            labelProb = probData[model][str(index)]
             for label in labelCorpus:
-                if label in probData[model][str(index)]:
-                    prod[label] *= probData[model][str(index)][label]
-                else:
-                    prod[label] *= 0.0
+                prod[label] *= labelProb[label]
+
         output[index] = max(prod, key=prod.get)
     return output
 
@@ -47,7 +46,7 @@ def PoE(brandList, modelList):
         for fold in range(5):
             #print 'Fold: ' + str(fold)
             trainProbData, testProbData, trainLabels, testLabels, labelCorpus = eu.consolidateReader(brand, fold,
-                                                                                                     modelList)
+                                                                                                     modelList, 0.001)
 
             flag, trainSize = eu.checkSize(trainProbData, modelList)
             if not flag:

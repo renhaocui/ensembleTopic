@@ -24,10 +24,12 @@ def probSum(probData, dataSize, modelList, labelCorpus, modelWeight, weightedFla
                     temp[label] = 0.0
                 if label in probData[model][str(index)]:
                     score = probData[model][str(index)][label]
-                    if weightedFlag:
-                        temp[label] += modelWeight[model] * score
-                    else:
-                        temp[label] += score
+                else:
+                    score = 0.001
+                if weightedFlag:
+                    temp[label] += modelWeight[model] * score
+                else:
+                    temp[label] += score
         output[index] = max(temp, key=temp.get)
     return output
 
@@ -104,16 +106,16 @@ def baselines(brandList, modelList):
                 sys.exit()
 
             # probDict[individualModel] = {lineNum: {topic: prob}}
-            predictions1 = probComp(testProbData, testSize, modelList)
+            predictions1 = probSum(testProbData, testSize, modelList, labelCorpus, normalizeDict(modelDataWeight[brand]), False)
             accuracySum1 += evaluator(predictions1, testLabels, testSize)
             predictions2 = probSum(testProbData, testSize, modelList, labelCorpus, normalizeDict(modelDataWeight[brand]), True)
             accuracySum2 += evaluator(predictions2, testLabels, testSize)
 
-        print 'weightedSum: ' + str(accuracySum1 / 5)
-        print 'compProb: ' + str(accuracySum2 / 5)
+        print 'simpleSum: ' + str(accuracySum1 / 5)
+        print 'weightedSum: ' + str(accuracySum2 / 5)
 
-        resultFile.write(brand + '\tweightedSum:\t' + str(accuracySum1 / 5) + '\n')
-        resultFile.write(brand + '\tcompProb:\t' + str(accuracySum2 / 5) + '\n')
+        resultFile.write(brand + '\tsimpleSum:\t' + str(accuracySum1 / 5) + '\n')
+        resultFile.write(brand + '\tweightedSum:\t' + str(accuracySum2 / 5) + '\n')
 
 
 if __name__ == "__main__":
