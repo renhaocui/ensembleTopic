@@ -1,0 +1,32 @@
+['NaiveBayes', 'Alchemy']
+Elmers	probComp:	0.793630698445
+Chilis	probComp:	0.785999634207
+Dominos	probComp:	0.633866086373
+Triclosan	probComp:	0.331016862746
+TriclosanV	probComp:	0.327353458898
+BathAndBodyWorks	probComp:	0.402926833323
+POCruisesAustraliaV	probComp:	0.765011636928
+['LLDA', 'Alchemy']
+Elmers	probComp:	0.808866460012
+Chilis	probComp:	0.783776666876
+Dominos	probComp:	0.714875904598
+Triclosan	probComp:	0.393171476051
+TriclosanV	probComp:	0.369096193661
+BathAndBodyWorks	probComp:	0.423947365817
+POCruisesAustraliaV	probComp:	0.759968968192
+['LLDA', 'NaiveBayes']
+Elmers	probComp:	0.834297424001
+Chilis	probComp:	0.889984184729
+Dominos	probComp:	0.835375051418
+Triclosan	probComp:	0.429087395733
+TriclosanV	probComp:	0.406445796766
+BathAndBodyWorks	probComp:	0.480622175177
+POCruisesAustraliaV	probComp:	0.738557020946
+['LLDA', 'NaiveBayes', 'Alchemy']
+Elmers	probComp:	0.812875898578
+Chilis	probComp:	0.810615540286
+Dominos	probComp:	0.726279628362
+Triclosan	probComp:	0.397396928915
+TriclosanV	probComp:	0.374863496534
+BathAndBodyWorks	probComp:	0.432539289389
+POCruisesAustraliaV	probComp:	0.762684251358

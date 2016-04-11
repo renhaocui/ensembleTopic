@@ -56,7 +56,7 @@ def evaluator(predictions, labels, testSize):
 
 def baselines(brandList, modelList):
     print str(modelList)
-    resultFile = open('HybridData/Experiment/probEnsembleBaselines.result', 'a')
+    resultFile = open('HybridData/Experiment/probEnsembleBaselines.result2', 'a')
     resultFile.write(str(modelList) + '\n')
     modelDataWeight = {}
     indPerfFile = open('HybridData/Experiment/individual.result', 'r')
@@ -73,8 +73,7 @@ def baselines(brandList, modelList):
 
     for brand in brandList:
         print brand
-        accuracySum1 = 0.0
-        accuracySum2 = 0.0
+        accuracySum = 0.0
 
         trainIndex = {}
         testIndex = {}
@@ -103,16 +102,13 @@ def baselines(brandList, modelList):
                 sys.exit()
 
             # probDict[individualModel] = {lineNum: {topic: prob}}
-            predictions1 = probSum(testProbData, testSize, modelList, labelCorpus, normalizeDict(modelDataWeight[brand]), False)
-            accuracySum1 += evaluator(predictions1, testLabels, testSize)
-            predictions2 = probSum(testProbData, testSize, modelList, labelCorpus, normalizeDict(modelDataWeight[brand]), True)
-            accuracySum2 += evaluator(predictions2, testLabels, testSize)
+            #predictions = probSum(testProbData, testSize, modelList, labelCorpus, normalizeDict(modelDataWeight[brand]), False)
+            predictions = probComp(testProbData, testSize, modelList)
+            accuracySum += evaluator(predictions, testLabels, testSize)
 
-        print 'simpleSum: ' + str(accuracySum1 / 5)
-        print 'weightedSum: ' + str(accuracySum2 / 5)
+        print 'probComp: ' + str(accuracySum / 5)
 
-        resultFile.write(brand + '\tsimpleSum:\t' + str(accuracySum1 / 5) + '\n')
-        resultFile.write(brand + '\tweightedSum:\t' + str(accuracySum2 / 5) + '\n')
+        resultFile.write(brand + '\tprobComp:\t' + str(accuracySum / 5) + '\n')
 
 
 if __name__ == "__main__":
