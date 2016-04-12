@@ -152,7 +152,7 @@ if __name__ == "__main__":
     #brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'TriclosanV', 'BathAndBodyWorks']
     brandList = ['BathAndBodyWorks']
     #runModelList = [['NaiveBayes', 'Alchemy'], ['LLDA', 'Alchemy'], ['LLDA', 'NaiveBayes'], ['LLDA', 'NaiveBayes', 'Alchemy']]
-    runModelList = [['LLDA', 'NaiveBayes'], ['LLDA', 'NaiveBayes', 'Alchemy']]
+    runModelList = [['LLDA', 'NaiveBayes', 'Alchemy']]
     for modelList in runModelList:
         #print 'True'
         singleWeight(brandList=brandList, modelList=modelList, classifier='MLP', useDocVector=True)

@@ -1,20 +1,33 @@
 import sys
 import ensembleUtility as eu
 
-def normalizeDict(inputDict):
+def renormalize(inputDict):
     outputDict = {}
     total = sum(inputDict.values())
     for key, value in inputDict.items():
-        outputDict[key] = value/total
+        outputDict[key] = float(value)/total
     return outputDict
 
-def unifiedDict(modelList):
-    outputDict = {}
+def dynamicWeightTrain(probData, trainLabels, dataSize, modelList, labelCorpus, iteration):
+    modelWeights = {}
     for model in modelList:
-        outputDict[model] = 1/len(modelList)
-    return outputDict
+        modelWeights[model] = 1.0/len(modelList)
+    for iter in range(iteration):
+        for index in range(dataSize):
+            tempProbData = {}
+            for model in modelList:
+                tempProbData[model] = {'0': probData[model][str(index)]}
+            tempPrediction = dynamicWeightInfer(tempProbData, 1, modelList, labelCorpus, modelWeights)
+            if tempPrediction[0] not in trainLabels[index]:
+                for model in modelList:
+                    if eu.iniPred(tempProbData[model]) not in trainLabels[index]:
+                        modelWeights[model] *= 0.9
+                modelWeights = renormalize(modelWeights)
 
-def probSum(probData, dataSize, modelList, labelCorpus, modelWeight, weightedFlag):
+    return modelWeights
+
+
+def dynamicWeightInfer(probData, dataSize, modelList, labelCorpus, modelWeights):
     output = {}
     for index in range(dataSize):
         temp = {}
@@ -23,24 +36,9 @@ def probSum(probData, dataSize, modelList, labelCorpus, modelWeight, weightedFla
                 if label not in temp:
                     temp[label] = 0.0
                 score = probData[model][str(index)][label]
-                if weightedFlag:
-                    temp[label] += modelWeight[model] * score
-                else:
-                    temp[label] += score
+                temp[label] += modelWeights[model] * score
+
         output[index] = max(temp, key=temp.get)
-    return output
-
-
-def probComp(probData, dataSize, modelList):
-    output = {}
-    for index in range(dataSize):
-        comp = {}
-        temp = {}
-        for model in modelList:
-            pred = max(probData[model][str(index)], key=probData[model][str(index)].get)
-            comp[model] = probData[model][str(index)][pred]
-            temp[model] = pred
-        output[index] = temp[max(comp, key=comp.get)]
     return output
 
 
@@ -54,22 +52,10 @@ def evaluator(predictions, labels, testSize):
     return correct / total
 
 
-def baselines(brandList, modelList):
+def baselines(brandList, modelList, iteration):
     print str(modelList)
-    resultFile = open('HybridData/Experiment/probEnsembleBaselines.result2', 'a')
+    resultFile = open('HybridData/Experiment/dynamicEnsembleBaselines.result', 'a')
     resultFile.write(str(modelList) + '\n')
-    modelDataWeight = {}
-    indPerfFile = open('HybridData/Experiment/individual.result', 'r')
-    for line in indPerfFile:
-        items = line.strip().split('\t')
-        brand = items[0]
-        model = items[1]
-        prob = float(items[2])
-        if brand not in modelDataWeight:
-            modelDataWeight[brand] = {}
-        if model not in modelDataWeight[brand]:
-            modelDataWeight[brand][model] = prob
-    indPerfFile.close()
 
     for brand in brandList:
         print brand
@@ -87,7 +73,7 @@ def baselines(brandList, modelList):
         testIndexFile.close()
 
         for fold in range(5):
-            #print 'Fold: ' + str(fold)
+            print 'Fold: ' + str(fold)
             trainProbData, testProbData, trainLabels, testLabels, labelCorpus = eu.consolidateReader(brand, fold,
                                                                                                      modelList, 0.001)
 
@@ -102,18 +88,18 @@ def baselines(brandList, modelList):
                 sys.exit()
 
             # probDict[individualModel] = {lineNum: {topic: prob}}
-            #predictions = probSum(testProbData, testSize, modelList, labelCorpus, normalizeDict(modelDataWeight[brand]), False)
-            predictions = probComp(testProbData, testSize, modelList)
+            modelWeights = dynamicWeightTrain(trainProbData, trainLabels, trainSize, modelList, labelCorpus, iteration)
+            predictions = dynamicWeightInfer(testProbData, testSize, modelList, labelCorpus, modelWeights)
             accuracySum += evaluator(predictions, testLabels, testSize)
 
         print 'probComp: ' + str(accuracySum / 5)
 
         resultFile.write(brand + '\tprobComp:\t' + str(accuracySum / 5) + '\n')
+
     resultFile.close()
 
 if __name__ == "__main__":
     brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'TriclosanV', 'BathAndBodyWorks', 'POCruisesAustraliaV']
-    #brandList = ['POCruisesAustraliaV']
     runModelList = [['NaiveBayes', 'Alchemy'], ['LLDA', 'Alchemy'], ['LLDA', 'NaiveBayes'], ['LLDA', 'NaiveBayes', 'Alchemy']]
     for modelList in runModelList:
-        baselines(brandList, modelList)
+        baselines(brandList, modelList, 10)
