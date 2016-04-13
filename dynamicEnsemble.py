@@ -7,9 +7,8 @@ def iniWeight(modelList):
     output = {}
     totalOutput = {}
     updateCount = {}
-    size = len(modelList)
     for model in modelList:
-        output[model] = 1.0 / size
+        output[model] = 1.0 / len(modelList)
         totalOutput[model] = 0.0
         updateCount[model] = 0.0
     return output, totalOutput, updateCount
@@ -120,7 +119,7 @@ def idealOutput(testProbData, modelList, testSize):
 
 
 def singleWeightTraining(weights, totalWeights, updateCounts, trainProbData, trainLabels, modelList, iterations,
-                         learningRate, trainSize):
+                         learningRate, trainSize, perceptronFlag):
     for iter in range(iterations):
         predOutput = weightedPred(trainProbData, modelList, weights, trainSize)
         for index in range(trainSize):
@@ -129,7 +128,10 @@ def singleWeightTraining(weights, totalWeights, updateCounts, trainProbData, tra
             if outputLabel != trainLabels[index]:
                 for model in modelList:
                     if trainLabels[index] != eu.iniPred(trainProbData[model][str(index)]):
-                        weights[model] *= learningRate * outputScore
+                        if perceptronFlag:
+                            weights[model] *= learningRate * outputScore
+                        else:
+                            weights[model] *= learningRate
 
                 weights = normalization(weights)
                 for model in modelList:
@@ -168,36 +170,36 @@ def idealTest(testProbData, modelList, testLabels, testSize):
     return correct/total
 
 
-def singleWeight(brandList, modelList, iterations=30, learningRate=0.9):
+def singleWeight(brandList, modelList, iterations=10, learningRate=0.9, perceptronFlag=True):
     print str(modelList)
-    resultFile = open('HybridData/Experiment/ideal.result', 'a')
+    resultFile = open('HybridData/Experiment/dynamicEnsembleBaselines.result'+str(perceptronFlag), 'a')
     resultFile.write(str(modelList) + '\n')
     for brand in brandList:
         print brand
         accuracySum = 0.0
         for fold in range(5):
-            trainProbData, testProbData, trainLabels, testLabels, labelCorpus = eu.consolidateReader(brand, fold, modelList)
+            trainProbData, testProbData, trainLabels, testLabels, labelCorpus = eu.consolidateReader(brand, fold, modelList, 0.001)
 
             flag, trainSize = eu.checkSize(trainProbData, modelList)
             if not flag:
                 print 'Training data size error across models!'
                 sys.exit()
 
-            #weights, totalWeights, updateCounts = iniWeight(modelList)
+            weights, totalWeights, updateCounts = iniWeight(modelList)
             # modelDiff(trainProbData, modelList, trainLabels, trainSize, '../Experiment/'+brand+'.output')
-            '''
+
             # weight training
             weights, totalWeights, updateCounts = singleWeightTraining(weights, totalWeights, updateCounts,
                                                                        trainProbData, trainLabels, modelList,
-                                                                       iterations, learningRate, trainSize)
-            '''
+                                                                       iterations, learningRate, trainSize, perceptronFlag)
+
             # test
             flag, testSize = eu.checkSize(testProbData, modelList)
             if not flag:
                 print 'Test data size error across models!'
                 sys.exit()
-            #accuracy = singleWeightTest(testProbData, totalWeights, updateCounts, testLabels, testSize)
-            accuracy = idealTest(testProbData, modelList, testLabels, testSize)
+            accuracy = singleWeightTest(testProbData, totalWeights, updateCounts, testLabels, testSize)
+            #accuracy = idealTest(testProbData, modelList, testLabels, testSize)
             accuracySum += accuracy
 
         print accuracySum / 5
@@ -266,9 +268,10 @@ def vectorEnsemble(brandList, modelList, iterations=100, learningRate=0.9):
     resultFile.close()
 
 
-brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'BathAndBodyWorks']
+brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'TriclosanV', 'BathAndBodyWorks', 'POCruisesAustraliaV']
 runModelList = [['NaiveBayes', 'Alchemy'], ['LLDA', 'Alchemy'], ['LLDA', 'NaiveBayes'], ['LLDA', 'NaiveBayes', 'Alchemy']]
 
 if __name__ == "__main__":
     for modelList in runModelList:
-        singleWeight(brandList=brandList, modelList=modelList)
+        singleWeight(brandList=brandList, modelList=modelList, perceptronFlag=True)
+        #singleWeight(brandList=brandList, modelList=modelList, perceptronFlag=False)

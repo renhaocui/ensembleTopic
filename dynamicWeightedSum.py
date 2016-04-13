@@ -8,23 +8,33 @@ def renormalize(inputDict):
         outputDict[key] = float(value)/total
     return outputDict
 
-def dynamicWeightTrain(probData, trainLabels, dataSize, modelList, labelCorpus, iteration):
+def dynamicWeightTrain(probData, trainLabels, dataSize, modelList, labelCorpus, learningRate, iteration):
+    modelWeightsSum = {}
+    updateCount = 0.0
     modelWeights = {}
     for model in modelList:
         modelWeights[model] = 1.0/len(modelList)
+        modelWeightsSum[model] = 0.0
     for iter in range(iteration):
         for index in range(dataSize):
             tempProbData = {}
             for model in modelList:
                 tempProbData[model] = {'0': probData[model][str(index)]}
             tempPrediction = dynamicWeightInfer(tempProbData, 1, modelList, labelCorpus, modelWeights)
-            if tempPrediction[0] not in trainLabels[index]:
+            if tempPrediction[0] != trainLabels[index]:
                 for model in modelList:
-                    if eu.iniPred(tempProbData[model]) not in trainLabels[index]:
-                        modelWeights[model] *= 0.9
+                    if eu.iniPred(tempProbData[model]) != trainLabels[index]:
+                        modelWeights[model] *= learningRate
                 modelWeights = renormalize(modelWeights)
+            for model in modelList:
+                modelWeightsSum[model] += modelWeights[model]
+            updateCount += 1.0
 
-    return modelWeights
+    outputWeights = {}
+    for model in modelList:
+        outputWeights[model] = modelWeightsSum[model]/updateCount
+
+    return outputWeights
 
 
 def dynamicWeightInfer(probData, dataSize, modelList, labelCorpus, modelWeights):
@@ -33,7 +43,7 @@ def dynamicWeightInfer(probData, dataSize, modelList, labelCorpus, modelWeights)
         temp = {}
         for model in modelList:
             for label in labelCorpus:
-                if label not in temp:
+                if label != temp:
                     temp[label] = 0.0
                 score = probData[model][str(index)][label]
                 temp[label] += modelWeights[model] * score
@@ -52,9 +62,9 @@ def evaluator(predictions, labels, testSize):
     return correct / total
 
 
-def baselines(brandList, modelList, iteration):
+def baselines(brandList, modelList, learningRate, iteration):
     print str(modelList)
-    resultFile = open('HybridData/Experiment/dynamicEnsembleBaselines.result', 'a')
+    resultFile = open('HybridData/Experiment/dynamicEnsembleBaselines.result2', 'a')
     resultFile.write(str(modelList) + '\n')
 
     for brand in brandList:
@@ -88,7 +98,7 @@ def baselines(brandList, modelList, iteration):
                 sys.exit()
 
             # probDict[individualModel] = {lineNum: {topic: prob}}
-            modelWeights = dynamicWeightTrain(trainProbData, trainLabels, trainSize, modelList, labelCorpus, iteration)
+            modelWeights = dynamicWeightTrain(trainProbData, trainLabels, trainSize, modelList, labelCorpus, learningRate, iteration)
             predictions = dynamicWeightInfer(testProbData, testSize, modelList, labelCorpus, modelWeights)
             accuracySum += evaluator(predictions, testLabels, testSize)
 
@@ -102,4 +112,4 @@ if __name__ == "__main__":
     brandList = ['Elmers', 'Chilis', 'Dominos', 'Triclosan', 'TriclosanV', 'BathAndBodyWorks', 'POCruisesAustraliaV']
     runModelList = [['NaiveBayes', 'Alchemy'], ['LLDA', 'Alchemy'], ['LLDA', 'NaiveBayes'], ['LLDA', 'NaiveBayes', 'Alchemy']]
     for modelList in runModelList:
-        baselines(brandList, modelList, 10)
+        baselines(brandList, modelList, 0.9, 30)
